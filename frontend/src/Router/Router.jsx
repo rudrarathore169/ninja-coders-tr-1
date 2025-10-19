@@ -1,0 +1,138 @@
+import React from 'react'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
+
+import AdminLayout from "./Layouts/AdminLayout"
+import StaffLayout from "./Layouts/StaffLayout"
+import AuthLayout from "./Layouts/AuthLayout"
+import CustomerLayout from "./Layouts/CustomerLayout"
+
+// Customer pages
+import CustomerDashboard from "./Customer/CustomerDashboard"
+import CustomerMenu from "./Customer/CustomerMenu"
+import CustomerItemDetail from "./Customer/CustomerItemDetail"
+import CustomerCart from "./Customer/CustomerCart"
+import CustomerOrderStatus from "./Customer/CustomerOrderStatus"
+
+// Staff pages
+import StaffDashboard from "./Staff/StaffDashboard"
+import StaffOrderDetail from "./Staff/StaffOrderDetail"
+
+// Admin pages
+import AdminDashboard from "./Admin/AdminDashboard"
+import AdminMenuManagement from "./Admin/AdminMenuManagement"
+import AdminTableManagement from "./Admin/AdminTableManagement"
+import AdminAllOrders from "./Admin/AdminAllOrders"
+import AdminAnalytics from "./Admin/AdminAnalytics"
+
+// Auth pages
+import Login from "./Auth/Login"
+import Signup from "./Auth/Signup"
+
+const Router = createBrowserRouter([
+  // Root redirect
+  {
+    path: "/",
+    element: <Navigate to="/customer/dashboard" replace />
+  },
+
+  // Customer Routes
+  {
+    path: "/customer",
+    element: <CustomerLayout />,
+    children: [
+      {
+        path: "dashboard",
+        element: <CustomerDashboard />
+      },
+      {
+        path: "menu",
+        element: <CustomerMenu />
+      },
+      {
+        path: "item/:id",
+        element: <CustomerItemDetail />
+      },
+      {
+        path: "cart",
+        element: <CustomerCart />
+      },
+      {
+        path: "order-status",
+        element: <CustomerOrderStatus />
+      }
+    ]
+  },
+
+  // Staff Routes
+  {
+    path: "/staff",
+    element: <StaffLayout />,
+    children: [
+      {
+        path: "dashboard",
+        element: <StaffDashboard />
+      },
+      {
+        path: "order/:id",
+        element: <StaffOrderDetail />
+      }
+    ]
+  },
+
+  // Admin Routes
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      {
+        path: "dashboard",
+        element: <AdminDashboard />
+      },
+      {
+        path: "menu",
+        element: <AdminMenuManagement />
+      },
+      {
+        path: "tables",
+        element: <AdminTableManagement />
+      },
+      {
+        path: "orders",
+        element: <AdminAllOrders />
+      },
+      {
+        path: "analytics",
+        element: <AdminAnalytics />
+      }
+    ]
+  },
+
+  // Auth Routes
+  {
+    path: "/auth",
+    element: <AuthLayout />,
+    children: [
+      {
+        path: "login",
+        element: <Login />
+      },
+      {
+        path: "signup",
+        element: <Signup />
+      }
+    ]
+  },
+
+  // 404 Fallback
+  {
+    path: "*",
+    element: (
+      <div style={{ padding: '50px', textAlign: 'center' }}>
+        <h1>404 - Page Not Found</h1>
+        <p>The page you're looking for doesn't exist.</p>
+      </div>
+    )
+  }
+])
+
+export default Router

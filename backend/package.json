@@ -1,7 +1,6 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "",
   "license": "ISC",
   "author": "",
   "type": "module",
@@ -26,5 +25,7 @@
     "razorpay": "^2.9.6",
     "stripe": "^19.1.0",
     "validator": "^13.15.15"
-  }
+  },
+  "keywords": [],
+  "description": ""
 }

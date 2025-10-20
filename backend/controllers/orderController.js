@@ -45,7 +45,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     message: 'Order placed successfully',
     data: {
       id: order._id,
-      orderNumber: generateOrderNumber(),
+      orderNumber: order.orderNumber,
       status: order.status,
       totals: order.totals,
       createdAt: order.createdAt
@@ -77,7 +77,15 @@ export const listOrders = asyncHandler(async (req, res) => {
     return res.status(401).json({ success: false, message: 'Authentication required to list orders' });
   }
 
-  const orders = await Order.find(query).sort({ createdAt: -1 }).limit(200);
+  const orders = await Order.find(query)
+    .populate({
+      path: 'items.menuItemId',
+      select: 'name description price categoryId availability tags popularity imageUrl'
+    })
+    .populate('tableId', 'tableNumber qrSlug')
+    .populate('customerId', 'name email')
+    .sort({ createdAt: -1 })
+    .limit(200);
 
   res.status(200).json({ success: true, message: 'Orders retrieved', data: orders });
 });
@@ -88,7 +96,14 @@ export const listOrders = asyncHandler(async (req, res) => {
  */
 export const getOrderById = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const order = await Order.findById(id);
+  const order = await Order.findById(id)
+    .populate({
+      path: 'items.menuItemId',
+      select: 'name description price categoryId availability tags popularity imageUrl'
+    })
+    .populate('tableId', 'tableNumber qrSlug')
+    .populate('customerId', 'name email');
+    
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
   // Authorization: staff/admin or owner

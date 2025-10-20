@@ -34,7 +34,8 @@ const config = {
   
   STRIPE: {
     SECRET_KEY: process.env.STRIPE_SECRET_KEY || '',
-    PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || ''
+    PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || '',
+    WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || ''
   },
   
   // File Upload Configuration

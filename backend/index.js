@@ -1,11 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import path from "path";
 import connectDB from "./config/db.js";
 import corsConfig from "./config/cors.js";
 import config from "./config/config.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
+import { handleWebhook } from './controllers/paymentController.js';
 
 // Load environment variables
 dotenv.config();
@@ -17,7 +20,25 @@ const app = express();
 
 // Middleware
 app.use(morgan('combined')); // Logging middleware
+app.use(helmet()); // Basic security headers
+
+// Basic rate limiter
+const limiter = rateLimit({
+  windowMs: config.RATE_LIMIT.WINDOW_MS, // 15 minutes
+  max: config.RATE_LIMIT.MAX_REQUESTS, // limit each IP
+  standardHeaders: true,
+  legacyHeaders: false
+});
+app.use(limiter);
+
 app.use(corsConfig); // CORS configuration
+// Stripe webhook - must be before express.json() in middleware ordering to access raw body
+// We mount it at /api/payments/webhook and use express.raw to preserve the raw bytes for signature verification.
+app.post(
+  '/api/payments/webhook',
+  express.raw({ type: 'application/json' }),
+  (req, res) => handleWebhook(req, res)
+);
 app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
 
@@ -49,15 +70,17 @@ app.get("/api/health", (req, res) => {
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import menuRoutes from "./routes/menuRoutes.js";
-// import tableRoutes from "./routes/tableRoutes.js";
-// import orderRoutes from "./routes/orderRoutes.js";
+import tableRoutes from "./routes/tableRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 // Mount routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/menu", menuRoutes);
-// app.use("/api/tables", tableRoutes);
-// app.use("/api/orders", orderRoutes);
+app.use("/api/tables", tableRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // 404 handler for undefined routes
 app.use(notFound);

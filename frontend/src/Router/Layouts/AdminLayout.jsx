@@ -1,20 +1,32 @@
-import React from 'react'
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 
 const AdminLayout = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    localStorage.removeItem('token')
+    navigate('/auth/login')
+  }
   
-  // Helper function to check if link is active
   const isActive = (path) => {
     return location.pathname === `/admin/${path}`
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation Header */}
       <nav className="bg-gradient-to-r from-amber-50 to-amber-100 shadow-lg sticky top-0 z-50">
         <div className="flex items-center justify-between px-6 py-4">
-          {/* Logo Section */}
           <Link to="/admin/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -34,10 +46,12 @@ const AdminLayout = () => {
               <path d="m19 5-7 7"/>
             </svg>
             <h1 className="text-2xl font-bold text-amber-900">Dine Lite</h1>
+            <span className="text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-semibold">
+              Admin
+            </span>
           </Link>
 
-          {/* Navigation Links */}
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
             <Link 
               to="/admin/dashboard"
               className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
@@ -92,11 +106,24 @@ const AdminLayout = () => {
             >
               Analytics
             </Link>
+
+            {/* User Info & Logout */}
+            <div className="ml-4 border-l-2 border-amber-300 pl-4 flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-sm font-semibold text-amber-900">{user?.name}</p>
+                <p className="text-xs text-amber-700">Administrator</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm rounded-full bg-white text-amber-900 hover:bg-red-600 hover:text-white shadow-md transition-all duration-300"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Main Content Area */}
       <main className="container mx-auto px-6 py-8">
         <Outlet />
       </main>

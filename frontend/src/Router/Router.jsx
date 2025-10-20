@@ -65,7 +65,7 @@ const Router = createBrowserRouter([
     ]
   },
 
- 
+
   // Staff Routes - PROTECTED (Staff Only)
   {
     path: "/staff",
@@ -138,6 +138,18 @@ const Router = createBrowserRouter([
       {
         path: "signup",
         element: <Signup />
+      }
+    ]
+  },
+
+  // Update Router.jsx to support QR code landing
+  {
+    path: "/m/:qrSlug",  // QR code lands here
+    element: <CustomerLayout />,
+    children: [
+      {
+        path: "",
+        element: <CustomerMenu />  // Auto-loads menu with table context
       }
     ]
   },

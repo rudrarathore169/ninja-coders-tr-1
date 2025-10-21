@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { loginStart, loginSuccess, loginFailure, clearError } from '../../store/slices/authSlice'
@@ -10,33 +10,36 @@ const Signup = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'customer', // Default role
+    role: 'customer',
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const hasRedirected = useRef(false) // ✅ Prevent multiple redirects
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { loading, error, isAuthenticated, user } = useSelector((state) => state.auth)
 
-  // Redirect after signup
+  // ✅ FIXED: Redirect only once after successful signup
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user && !hasRedirected.current) {
+      hasRedirected.current = true
+      
       switch (user.role) {
         case 'admin':
-          navigate('/admin/dashboard')
+          navigate('/admin/dashboard', { replace: true })
           break
         case 'staff':
-          navigate('/staff/dashboard')
+          navigate('/staff/dashboard', { replace: true })
           break
         case 'customer':
-          navigate('/customer/menu')
+          navigate('/customer/menu', { replace: true })
           break
         default:
-          navigate('/customer/menu')
+          navigate('/customer/menu', { replace: true })
       }
     }
-  }, [isAuthenticated, user, navigate])
+  }, [isAuthenticated, user]) // ✅ Only depend on auth state
 
   useEffect(() => {
     return () => dispatch(clearError())
@@ -121,12 +124,14 @@ const Signup = () => {
 
             {/* Name Field */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="signup-name" className="block text-sm font-semibold text-gray-700 mb-2">
                 Full Name
               </label>
               <input
                 type="text"
+                id="signup-name"
                 name="name"
+                autoComplete="name"
                 value={formData.name}
                 onChange={handleChange}
                 required
@@ -137,12 +142,14 @@ const Signup = () => {
 
             {/* Email Field */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="signup-email" className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
               </label>
               <input
                 type="email"
+                id="signup-email"
                 name="email"
+                autoComplete="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -153,11 +160,13 @@ const Signup = () => {
 
             {/* Role Selection */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="signup-role" className="block text-sm font-semibold text-gray-700 mb-2">
                 I am a
               </label>
               <select
+                id="signup-role"
                 name="role"
+                autoComplete="off"
                 value={formData.role}
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all outline-none bg-white"
@@ -170,13 +179,15 @@ const Signup = () => {
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="signup-password" className="block text-sm font-semibold text-gray-700 mb-2">
                 Password
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  id="signup-password"
                   name="password"
+                  autoComplete="new-password"
                   value={formData.password}
                   onChange={handleChange}
                   required
@@ -205,13 +216,15 @@ const Signup = () => {
 
             {/* Confirm Password Field */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="signup-confirm-password" className="block text-sm font-semibold text-gray-700 mb-2">
                 Confirm Password
               </label>
               <div className="relative">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
+                  id="signup-confirm-password"
                   name="confirmPassword"
+                  autoComplete="new-password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required

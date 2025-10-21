@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { loginStart, loginSuccess, loginFailure, clearError } from '../../store/slices/authSlice'
@@ -10,37 +10,40 @@ const Login = () => {
     password: '',
   })
   const [showPassword, setShowPassword] = useState(false)
+  const hasRedirected = useRef(false) // ✅ Prevent multiple redirects
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
   const { loading, error, isAuthenticated, user } = useSelector((state) => state.auth)
 
-  // Redirect based on role after login
+  // ✅ FIXED: Redirect only once after successful login
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user && !hasRedirected.current) {
+      hasRedirected.current = true // Mark as redirected
+      
       const from = location.state?.from?.pathname
       
       if (from) {
-        navigate(from)
+        navigate(from, { replace: true })
       } else {
         // Redirect based on role
         switch (user.role) {
           case 'admin':
-            navigate('/admin/dashboard')
+            navigate('/admin/dashboard', { replace: true })
             break
           case 'staff':
-            navigate('/staff/dashboard')
+            navigate('/staff/dashboard', { replace: true })
             break
           case 'customer':
-            navigate('/customer/menu')
+            navigate('/customer/menu', { replace: true })
             break
           default:
-            navigate('/customer/menu')
+            navigate('/customer/menu', { replace: true })
         }
       }
     }
-  }, [isAuthenticated, user, navigate, location])
+  }, [isAuthenticated, user]) // ✅ Only depend on auth state, not navigate/location
 
   // Clear error when component unmounts
   useEffect(() => {
@@ -119,12 +122,14 @@ const Login = () => {
 
             {/* Email Field */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
               </label>
               <input
                 type="email"
+                id="email"
                 name="email"
+                autoComplete="email"
                 value={formData.email}
                 onChange={handleChange}
                 required
@@ -135,13 +140,15 @@ const Login = () => {
 
             {/* Password Field */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
                 Password
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  id="password"
                   name="password"
+                  autoComplete="current-password"
                   value={formData.password}
                   onChange={handleChange}
                   required

@@ -1,22 +1,19 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { logout } from '../../store/slices/authSlice'
 
 const AdminLayout = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const [user, setUser] = useState(null)
-
-  useEffect(() => {
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      setUser(JSON.parse(userData))
-    }
-  }, [])
-
+  const dispatch = useDispatch()
+  const { user } = useSelector((state) => state.auth)
+  
   const handleLogout = () => {
-    localStorage.removeItem('user')
-    localStorage.removeItem('token')
-    navigate('/auth/login')
+    // ✅ Use Redux logout action
+    dispatch(logout())
+    // ✅ Navigate with replace to prevent back button issues
+    navigate('/auth/login', { replace: true })
   }
   
   const isActive = (path) => {

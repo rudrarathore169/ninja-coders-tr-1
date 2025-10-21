@@ -1,3 +1,4 @@
+// src/Router/ProtectedRoute.jsx - FIXED VERSION
 import React, { useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 
@@ -15,9 +16,9 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
       setUser(JSON.parse(userData))
     }
     setLoading(false)
-  }, [])
+  }, []) // ✅ FIXED: Empty dependency array - only run once!
 
-  // Show loading state while checking auth
+  // Show loading state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">

@@ -1,13 +1,14 @@
 import React from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 
+import ProtectedRoute from './ProtectedRoute'
+
 import AdminLayout from "./Layouts/AdminLayout"
 import StaffLayout from "./Layouts/StaffLayout"
 import AuthLayout from "./Layouts/AuthLayout"
 import CustomerLayout from "./Layouts/CustomerLayout"
 
 // Customer pages
-import CustomerDashboard from "./Customer/CustomerDashboard"
 import CustomerMenu from "./Customer/CustomerMenu"
 import CustomerItemDetail from "./Customer/CustomerItemDetail"
 import CustomerCart from "./Customer/CustomerCart"
@@ -29,10 +30,10 @@ import Login from "./Auth/Login"
 import Signup from "./Auth/Signup"
 
 const Router = createBrowserRouter([
-  // Root redirect
+  // Root redirect - Now goes to menu instead of dashboard
   {
     path: "/",
-    element: <Navigate to="/customer/dashboard" replace />
+    element: <Navigate to="/customer/menu" replace />
   },
 
   // Customer Routes
@@ -40,9 +41,10 @@ const Router = createBrowserRouter([
     path: "/customer",
     element: <CustomerLayout />,
     children: [
+      // Redirect /customer to /customer/menu
       {
-        path: "dashboard",
-        element: <CustomerDashboard />
+        path: "",
+        element: <Navigate to="/customer/menu" replace />
       },
       {
         path: "menu",
@@ -63,11 +65,20 @@ const Router = createBrowserRouter([
     ]
   },
 
-  // Staff Routes
+
+  // Staff Routes - PROTECTED (Staff Only)
   {
     path: "/staff",
-    element: <StaffLayout />,
+    element: (
+      <ProtectedRoute allowedRoles={['staff', 'admin']}>
+        <StaffLayout />
+      </ProtectedRoute>
+    ),
     children: [
+      {
+        path: "",
+        element: <Navigate to="/staff/dashboard" replace />
+      },
       {
         path: "dashboard",
         element: <StaffDashboard />
@@ -79,11 +90,19 @@ const Router = createBrowserRouter([
     ]
   },
 
-  // Admin Routes
+  // Admin Routes - PROTECTED (Admin Only)
   {
     path: "/admin",
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute allowedRoles={['admin']}>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
+      {
+        path: "",
+        element: <Navigate to="/admin/dashboard" replace />
+      },
       {
         path: "dashboard",
         element: <AdminDashboard />
@@ -119,6 +138,18 @@ const Router = createBrowserRouter([
       {
         path: "signup",
         element: <Signup />
+      }
+    ]
+  },
+
+  // Update Router.jsx to support QR code landing
+  {
+    path: "/m/:qrSlug",  // QR code lands here
+    element: <CustomerLayout />,
+    children: [
+      {
+        path: "",
+        element: <CustomerMenu />  // Auto-loads menu with table context
       }
     ]
   },

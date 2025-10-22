@@ -1,8 +1,20 @@
 import React from 'react'
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { logout } from '../../store/slices/authSlice'
 
 const StaffLayout = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { user } = useSelector((state) => state.auth)
+
+  const handleLogout = () => {
+    // ✅ Use Redux logout action
+    dispatch(logout())
+    // ✅ Navigate with replace to prevent back button issues
+    navigate('/auth/login', { replace: true })
+  }
   
   const isActive = (path) => {
     return location.pathname === `/staff/${path}`
@@ -31,30 +43,36 @@ const StaffLayout = () => {
               <path d="m19 5-7 7"/>
             </svg>
             <h1 className="text-2xl font-bold text-amber-900">Dine Lite</h1>
+            <span className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">
+              Staff
+            </span>
           </Link>
 
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
             <Link 
               to="/staff/dashboard"
               className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                isActive('dashboard')
+                isActive('dashboard') || location.pathname.startsWith('/staff/order')
                   ? 'bg-amber-800 text-white shadow-lg scale-105'
                   : 'bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md'
               }`}
             >
-              Dashboard
+              Orders
             </Link>
-            
-            <Link 
-              to="/staff/order/:id"
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                location.pathname.startsWith('/staff/order')
-                  ? 'bg-amber-800 text-white shadow-lg scale-105'
-                  : 'bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md'
-              }`}
-            >
-              Order Details
-            </Link>
+
+            {/* User Info & Logout */}
+            <div className="ml-4 border-l-2 border-amber-300 pl-4 flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-sm font-semibold text-amber-900">{user?.name}</p>
+                <p className="text-xs text-amber-700">Staff Member</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm rounded-full bg-white text-amber-900 hover:bg-red-600 hover:text-white shadow-md transition-all duration-300"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </nav>

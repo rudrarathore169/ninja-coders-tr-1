@@ -146,5 +146,4 @@ router.put('/:id/deactivate',
   handleValidationErrors,
   deactivateUser
 );
-
 export default router;

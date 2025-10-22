@@ -8,7 +8,7 @@ const config = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   
   // Database Configuration
-  MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/restaurant_qr_menu',
+  MONGO_URI: process.env.MONGO_URI || 'mongodb+srv://Admin:jo20I35fJr2ihqp4@mern-project.u5t7o6t.mongodb.net/restaurantDB?retryWrites=true&w=majority',
   
   // JWT Configuration
   JWT_SECRET: process.env.JWT_SECRET || 'your_super_secret_jwt_key_here_change_this_in_production',

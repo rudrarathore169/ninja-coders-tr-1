@@ -13,12 +13,6 @@ import {
   deleteAccount
 } from '../controllers/authController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
-import { requireAuth } from '../middleware/roleMiddleware.js';
-import {
-  validateUserRegistration,
-  validateUserLogin,
-  handleValidationErrors
-} from '../utils/validationUtils.js';
 
 const router = express.Router();
 
@@ -32,14 +26,14 @@ const router = express.Router();
  * @desc    Register a new user
  * @access  Public
  */
-router.post('/register', validateUserRegistration, handleValidationErrors, register);
+router.post('/register', register);
 
 /**
  * @route   POST /api/auth/login
  * @desc    Login user
  * @access  Public
  */
-router.post('/login', validateUserLogin, handleValidationErrors, login);
+router.post('/login', login);
 
 /**
  * @route   POST /api/auth/logout
@@ -93,9 +87,9 @@ router.post('/send-verification', authenticate, sendEmailVerification);
 /**
  * @route   POST /api/auth/verify-email
  * @desc    Verify email using token
- * @access  Private
+ * @access  Public (token-based verification)
  */
-router.post('/verify-email', authenticate, verifyEmail);
+router.post('/verify-email', verifyEmail);
 
 /**
  * @route   DELETE /api/auth/delete-account

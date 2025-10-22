@@ -1,12 +1,12 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
-import { 
-  generateTokenPair, 
-  verifyRefreshToken, 
+import {
+  generateTokenPair,
+  verifyRefreshToken,
   generatePasswordResetToken,
   verifyPasswordResetToken,
   generateEmailVerificationToken,
-  verifyEmailVerificationToken
+  verifyEmailVerificationToken,
 } from '../utils/generateTokens.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 
@@ -27,7 +27,7 @@ export const register = asyncHandler(async (req, res) => {
   if (existingUser) {
     return res.status(400).json({
       success: false,
-      message: 'User with this email already exists'
+      message: 'User with this email already exists',
     });
   }
 
@@ -40,7 +40,7 @@ export const register = asyncHandler(async (req, res) => {
     name: name.trim(),
     email: email.toLowerCase().trim(),
     passwordHash,
-    role
+    role,
   });
 
   await user.save();
@@ -48,7 +48,7 @@ export const register = asyncHandler(async (req, res) => {
   // Generate tokens
   const tokens = generateTokenPair(user._id.toString(), user.role, {
     email: user.email,
-    name: user.name
+    name: user.name,
   });
 
   // Remove password hash from response
@@ -57,7 +57,7 @@ export const register = asyncHandler(async (req, res) => {
     name: user.name,
     email: user.email,
     role: user.role,
-    createdAt: user.createdAt
+    createdAt: user.createdAt,
   };
 
   res.status(201).json({
@@ -65,8 +65,8 @@ export const register = asyncHandler(async (req, res) => {
     message: 'User registered successfully',
     data: {
       user: userResponse,
-      tokens
-    }
+      tokens,
+    },
   });
 });
 
@@ -77,28 +77,31 @@ export const register = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Find user by email
-  const user = await User.findOne({ email: email.toLowerCase() });
-  if (!user) {
-    return res.status(401).json({
+  // 1. Validate input
+  if (!email || !password) {
+    return res.status(400).json({
       success: false,
-      message: 'Invalid email or password'
+      message: 'Please provide email and password',
     });
   }
 
-  // Verify password
-  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-  if (!isPasswordValid) {
+  // 2. Find user by email AND explicitly select the passwordHash
+  const user = await User.findOne({ email: email.toLowerCase() }).select(
+    '+passwordHash'
+  );
+
+  // 3. Check if user exists AND if password is valid in one step
+  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
     return res.status(401).json({
       success: false,
-      message: 'Invalid email or password'
+      message: 'Invalid email or password',
     });
   }
 
   // Generate tokens
   const tokens = generateTokenPair(user._id.toString(), user.role, {
     email: user.email,
-    name: user.name
+    name: user.name,
   });
 
   // Remove password hash from response
@@ -108,7 +111,7 @@ export const login = asyncHandler(async (req, res) => {
     email: user.email,
     role: user.role,
     createdAt: user.createdAt,
-    updatedAt: user.updatedAt
+    updatedAt: user.updatedAt,
   };
 
   res.status(200).json({
@@ -116,8 +119,8 @@ export const login = asyncHandler(async (req, res) => {
     message: 'Login successful',
     data: {
       user: userResponse,
-      tokens
-    }
+      tokens,
+    },
   });
 });
 
@@ -128,10 +131,10 @@ export const login = asyncHandler(async (req, res) => {
 export const logout = asyncHandler(async (req, res) => {
   // Since we're using stateless JWT tokens, logout is handled client-side
   // This endpoint can be used for logging purposes or future token blacklisting
-  
+
   res.status(200).json({
     success: true,
-    message: 'Logout successful'
+    message: 'Logout successful',
   });
 });
 
@@ -145,40 +148,40 @@ export const refreshToken = asyncHandler(async (req, res) => {
   if (!refreshToken) {
     return res.status(401).json({
       success: false,
-      message: 'Refresh token is required'
+      message: 'Refresh token is required',
     });
   }
 
   try {
     // Verify refresh token
     const decoded = verifyRefreshToken(refreshToken);
-    
+
     // Find user
     const user = await User.findById(decoded.userId).select('-passwordHash');
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid refresh token'
+        message: 'Invalid refresh token',
       });
     }
 
     // Generate new token pair
     const tokens = generateTokenPair(user._id.toString(), user.role, {
       email: user.email,
-      name: user.name
+      name: user.name,
     });
 
     res.status(200).json({
       success: true,
       message: 'Token refreshed successfully',
       data: {
-        tokens
-      }
+        tokens,
+      },
     });
   } catch (error) {
     return res.status(401).json({
       success: false,
-      message: 'Invalid or expired refresh token'
+      message: 'Invalid or expired refresh token',
     });
   }
 });
@@ -189,6 +192,7 @@ export const refreshToken = asyncHandler(async (req, res) => {
  */
 export const getMe = asyncHandler(async (req, res) => {
   // User is attached to request by auth middleware
+  // We assume req.user does NOT have passwordHash, which is good
   const user = req.user;
 
   const userResponse = {
@@ -197,15 +201,15 @@ export const getMe = asyncHandler(async (req, res) => {
     email: user.email,
     role: user.role,
     createdAt: user.createdAt,
-    updatedAt: user.updatedAt
+    updatedAt: user.updatedAt,
   };
 
   res.status(200).json({
     success: true,
     message: 'User profile retrieved successfully',
     data: {
-      user: userResponse
-    }
+      user: userResponse,
+    },
   });
 });
 
@@ -221,7 +225,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     // Don't reveal if email exists or not for security
     return res.status(200).json({
       success: true,
-      message: 'If the email exists, a password reset link has been sent'
+      message: 'If the email exists, a password reset link has been sent',
     });
   }
 
@@ -235,8 +239,8 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     message: 'Password reset token generated',
     data: {
       resetToken, // Remove this in production - send via email instead
-      expiresIn: '1 hour'
-    }
+      expiresIn: '1 hour',
+    },
   });
 });
 
@@ -250,20 +254,20 @@ export const resetPassword = asyncHandler(async (req, res) => {
   if (!token || !newPassword) {
     return res.status(400).json({
       success: false,
-      message: 'Token and new password are required'
+      message: 'Token and new password are required',
     });
   }
 
   try {
     // Verify reset token
     const decoded = verifyPasswordResetToken(token);
-    
+
     // Find user
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid reset token'
+        message: 'Invalid reset token',
       });
     }
 
@@ -277,12 +281,12 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Password reset successfully'
+      message: 'Password reset successfully',
     });
   } catch (error) {
     return res.status(400).json({
       success: false,
-      message: 'Invalid or expired reset token'
+      message: 'Invalid or expired reset token',
     });
   }
 });
@@ -293,21 +297,34 @@ export const resetPassword = asyncHandler(async (req, res) => {
  */
 export const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
-  const user = req.user;
+  const userId = req.user._id; // Get user ID from auth middleware
 
   if (!currentPassword || !newPassword) {
     return res.status(400).json({
       success: false,
-      message: 'Current password and new password are required'
+      message: 'Current password and new password are required',
     });
   }
 
-  // Verify current password
-  const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
+  // 1. Re-fetch user from DB to get the passwordHash
+  const user = await User.findById(userId).select('+passwordHash');
+
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
+  }
+
+  // 2. Verify current password
+  const isCurrentPasswordValid = await bcrypt.compare(
+    currentPassword,
+    user.passwordHash
+  );
   if (!isCurrentPasswordValid) {
     return res.status(400).json({
       success: false,
-      message: 'Current password is incorrect'
+      message: 'Current password is incorrect',
     });
   }
 
@@ -321,7 +338,7 @@ export const changePassword = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: 'Password changed successfully'
+    message: 'Password changed successfully',
   });
 });
 
@@ -333,7 +350,10 @@ export const sendEmailVerification = asyncHandler(async (req, res) => {
   const user = req.user;
 
   // Generate verification token
-  const verificationToken = generateEmailVerificationToken(user._id.toString(), user.email);
+  const verificationToken = generateEmailVerificationToken(
+    user._id.toString(),
+    user.email
+  );
 
   // In a real application, you would send this token via email
   // For now, we'll return it in the response (remove this in production)
@@ -342,8 +362,8 @@ export const sendEmailVerification = asyncHandler(async (req, res) => {
     message: 'Email verification token generated',
     data: {
       verificationToken, // Remove this in production - send via email instead
-      expiresIn: '24 hours'
-    }
+      expiresIn: '24 hours',
+    },
   });
 });
 
@@ -357,20 +377,20 @@ export const verifyEmail = asyncHandler(async (req, res) => {
   if (!token) {
     return res.status(400).json({
       success: false,
-      message: 'Verification token is required'
+      message: 'Verification token is required',
     });
   }
 
   try {
     // Verify email verification token
     const decoded = verifyEmailVerificationToken(token);
-    
+
     // Find user
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid verification token'
+        message: 'Invalid verification token',
       });
     }
 
@@ -380,12 +400,12 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Email verified successfully'
+      message: 'Email verified successfully',
     });
   } catch (error) {
     return res.status(400).json({
       success: false,
-      message: 'Invalid or expired verification token'
+      message: 'Invalid or expired verification token',
     });
   }
 });
@@ -396,21 +416,31 @@ export const verifyEmail = asyncHandler(async (req, res) => {
  */
 export const deleteAccount = asyncHandler(async (req, res) => {
   const { password } = req.body;
-  const user = req.user;
+  const userId = req.user._id;
 
   if (!password) {
     return res.status(400).json({
       success: false,
-      message: 'Password is required to delete account'
+      message: 'Password is required to delete account',
     });
   }
 
-  // Verify password
+  // 1. Re-fetch user from DB to get the passwordHash
+  const user = await User.findById(userId).select('+passwordHash');
+
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
+  }
+
+  // 2. Verify password
   const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
   if (!isPasswordValid) {
     return res.status(400).json({
       success: false,
-      message: 'Incorrect password'
+      message: 'Incorrect password',
     });
   }
 
@@ -419,7 +449,7 @@ export const deleteAccount = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: 'Account deleted successfully'
+    message: 'Account deleted successfully',
   });
 });
 
@@ -434,5 +464,5 @@ export default {
   changePassword,
   sendEmailVerification,
   verifyEmail,
-  deleteAccount
+  deleteAccount,
 };

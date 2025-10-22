@@ -103,5 +103,4 @@ router.post('/verify-email', authenticate, verifyEmail);
  * @access  Private
  */
 router.delete('/delete-account', authenticate, deleteAccount);
-
 export default router;

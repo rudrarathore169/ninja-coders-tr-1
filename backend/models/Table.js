@@ -5,5 +5,4 @@ const tableSchema = new mongoose.Schema({
   qrSlug: { type: String, required: true, unique: true },
   activeSessionId: { type: String, default: null }
 }, { timestamps: true });
-
 export default mongoose.model("Table", tableSchema);

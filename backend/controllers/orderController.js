@@ -103,7 +103,7 @@ export const getOrderById = asyncHandler(async (req, res) => {
     })
     .populate('tableId', 'tableNumber qrSlug')
     .populate('customerId', 'name email');
-  
+    
   if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
   // Authorization: staff/admin or owner

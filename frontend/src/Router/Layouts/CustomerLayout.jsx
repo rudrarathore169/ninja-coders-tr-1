@@ -1,8 +1,26 @@
-import React from 'react'
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 
 const CustomerLayout = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+  
+  // Check if user is logged in (from localStorage)
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    // Check localStorage for user data
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem('user')
+    localStorage.removeItem('token')
+    setUser(null)
+  }
   
   const isActive = (path) => {
     return location.pathname === `/customer/${path}`
@@ -12,7 +30,7 @@ const CustomerLayout = () => {
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-gradient-to-r from-amber-50 to-amber-100 shadow-lg sticky top-0 z-50">
         <div className="flex items-center justify-between px-6 py-4">
-          <Link to="/customer/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <Link to="/customer/menu" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               width="40" 
@@ -33,38 +51,16 @@ const CustomerLayout = () => {
             <h1 className="text-2xl font-bold text-amber-900">Dine Lite</h1>
           </Link>
 
-          <div className="flex gap-3">
-            <Link 
-              to="/customer/dashboard"
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                isActive('dashboard')
-                  ? 'bg-amber-800 text-white shadow-lg scale-105'
-                  : 'bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md'
-              }`}
-            >
-              Dashboard
-            </Link>
-            
+          <div className="flex items-center gap-3">
             <Link 
               to="/customer/menu"
               className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                isActive('menu')
+                isActive('menu') || location.pathname.startsWith('/customer/item')
                   ? 'bg-amber-800 text-white shadow-lg scale-105'
                   : 'bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md'
               }`}
             >
               Menu
-            </Link>
-            
-            <Link 
-              to="/customer/item/:id"
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                location.pathname.startsWith('/customer/item')
-                  ? 'bg-amber-800 text-white shadow-lg scale-105'
-                  : 'bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md'
-              }`}
-            >
-              Item Info
             </Link>
             
             <Link 
@@ -88,6 +84,40 @@ const CustomerLayout = () => {
             >
               Order Status
             </Link>
+
+            {/* Auth Section - Subtle and on the right */}
+            <div className="ml-4 border-l-2 border-amber-300 pl-4">
+              {user ? (
+                // Logged in - Show user menu
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-amber-900 font-medium">
+                    Hi, {user.name}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 text-sm rounded-full bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md transition-all duration-300"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                // Not logged in - Show login/signup
+                <div className="flex gap-2">
+                  <Link
+                    to="/auth/login"
+                    className="px-4 py-2 text-sm rounded-full bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md transition-all duration-300"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/auth/signup"
+                    className="px-4 py-2 text-sm rounded-full bg-amber-700 text-white hover:bg-amber-900 shadow-md transition-all duration-300"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </nav>

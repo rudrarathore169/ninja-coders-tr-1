@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL + '/api/auth'
+const API_URL = `${import.meta.env.VITE_API_URL}/api/tables`
 
 class TableService {
   // Get table by QR slug (public)

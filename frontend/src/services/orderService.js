@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL + '/api/auth'
+const API_URL = `${import.meta.env.VITE_API_URL}/api/orders`
 
 class OrderService {
   // Create order (guest or authenticated)

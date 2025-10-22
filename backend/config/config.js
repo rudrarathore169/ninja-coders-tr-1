@@ -17,7 +17,7 @@ const config = {
   JWT_REFRESH_EXPIRE: process.env.JWT_REFRESH_EXPIRE || '30d',
   
   // CORS Configuration
-  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000',
+  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
   
   // Cloudinary Configuration
   CLOUDINARY: {

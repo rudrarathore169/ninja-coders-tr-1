@@ -40,12 +40,13 @@ const authSlice = createSlice({
             state.loading = false
             state.isAuthenticated = true
             state.user = action.payload.user  // Already correct!
-            state.token = action.payload.token // Already correct!
+                // Accept either a direct token or tokens.accessToken (from backend)
+                state.token = action.payload.token || action.payload.tokens?.accessToken
             state.error = null
 
             // Persist to localStorage
             localStorage.setItem('user', JSON.stringify(action.payload.user))
-            localStorage.setItem('token', action.payload.token)
+            localStorage.setItem('token', state.token)
         },
         loginFailure: (state, action) => {
             state.loading = false

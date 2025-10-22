@@ -1,25 +1,24 @@
-import React, { useState, useEffect } from 'react'
+// ============================================
+// src/Router/Layouts/CustomerLayout.jsx - FIXED
+// ============================================
+import React from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { logout } from '../../store/slices/authSlice'
 
 const CustomerLayout = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   
-  // Check if user is logged in (from localStorage)
-  const [user, setUser] = useState(null)
-
-  useEffect(() => {
-    // Check localStorage for user data
-    const userData = localStorage.getItem('user')
-    if (userData) {
-      setUser(JSON.parse(userData))
-    }
-  }, [])
+  // ✅ Get user from Redux, not useState
+  const { user } = useSelector((state) => state.auth)
 
   const handleLogout = () => {
-    localStorage.removeItem('user')
-    localStorage.removeItem('token')
-    setUser(null)
+    // ✅ Use Redux logout action
+    dispatch(logout())
+    // ✅ Navigate with replace to prevent back button issues
+    navigate('/auth/login', { replace: true })
   }
   
   const isActive = (path) => {
@@ -85,7 +84,7 @@ const CustomerLayout = () => {
               Order Status
             </Link>
 
-            {/* Auth Section - Subtle and on the right */}
+            {/* Auth Section */}
             <div className="ml-4 border-l-2 border-amber-300 pl-4">
               {user ? (
                 // Logged in - Show user menu

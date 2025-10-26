@@ -112,7 +112,12 @@ export const getOrderById = asyncHandler(async (req, res) => {
       return res.status(403).json({ success: false, message: 'Access denied to this order' });
     }
   } else {
-    return res.status(401).json({ success: false, message: 'Authentication required' });
+    // Allow unauthenticated access for guest orders (orders without a customerId or with tableToken in meta).
+    // This enables guests who placed an order to view its status without signing in.
+    // NOTE: In production you may want a stronger mechanism (signed token or tableToken) to prevent arbitrary access.
+    if (order.customerId) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
   }
 
   res.status(200).json({ success: true, data: order });

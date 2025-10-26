@@ -44,8 +44,8 @@ class MenuService {
       const data = await response.json();
 
       return {
-        items: data.data || [],
-        pagination: data.pagination || {}
+        items: data.data?.menuItems || [],
+        pagination: data.data?.pagination || {}
       };
     } catch (error) {
       console.error('❌ Get menu items error:', error);

@@ -5,5 +5,4 @@ const menuCategorySchema = new mongoose.Schema({
   displayOrder: { type: Number, default: 0 },
   active: { type: Boolean, default: true }
 }, { timestamps: true });
-
 export default mongoose.model("MenuCategory", menuCategorySchema);

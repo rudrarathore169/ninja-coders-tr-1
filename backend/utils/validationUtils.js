@@ -167,13 +167,15 @@ export const isValidUserRole = (role) => {
 };
 
 /**
- * Validate name (letters, spaces, hyphens, apostrophes)
+ * Validate name (letters, digits, spaces, hyphens, apostrophes)
+ * Accepts names like 'John Doe', 'QA User 3', or 'Anne-Marie'
  * @param {string} name - Name to validate
  * @returns {boolean} True if name is valid
  */
 export const isValidName = (name) => {
   if (!name || typeof name !== 'string') return false;
-  const nameRegex = /^[a-zA-Z\s\-']+$/;
+  // Allow letters, numbers, spaces, hyphens and apostrophes
+  const nameRegex = /^[a-zA-Z0-9\s\-']+$/;
   return nameRegex.test(name.trim()) && name.trim().length >= 2 && name.trim().length <= 50;
 };
 
@@ -211,8 +213,9 @@ export const validateUserRegistration = [
     .trim()
     .isLength({ min: 2, max: 50 })
     .withMessage('Name must be between 2 and 50 characters')
-    .matches(/^[a-zA-Z\s\-']+$/)
-    .withMessage('Name can only contain letters, spaces, hyphens, and apostrophes'),
+    // Accept digits as well (useful for QA names like 'QA User 3')
+    .matches(/^[a-zA-Z0-9\s\-']+$/)
+    .withMessage("Name can only contain letters, numbers, spaces, hyphens, and apostrophes"),
   
   body('email')
     .trim()

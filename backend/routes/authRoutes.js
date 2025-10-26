@@ -13,6 +13,7 @@ import {
   deleteAccount
 } from '../controllers/authController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
+import { validateUserRegistration, validateUserLogin, handleValidationErrors } from '../utils/validationUtils.js';
 
 const router = express.Router();
 
@@ -26,14 +27,14 @@ const router = express.Router();
  * @desc    Register a new user
  * @access  Public
  */
-router.post('/register', register);
+router.post('/register', validateUserRegistration, handleValidationErrors, register);
 
 /**
  * @route   POST /api/auth/login
  * @desc    Login user
  * @access  Public
  */
-router.post('/login', login);
+router.post('/login', validateUserLogin, handleValidationErrors, login);
 
 /**
  * @route   POST /api/auth/logout
@@ -97,5 +98,4 @@ router.post('/verify-email', verifyEmail);
  * @access  Private
  */
 router.delete('/delete-account', authenticate, deleteAccount);
-
 export default router;

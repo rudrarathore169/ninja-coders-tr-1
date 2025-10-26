@@ -1,8 +1,5 @@
 // src/services/authService.js
-// Use VITE_API_URL when provided, otherwise fall back to localhost backend
-const DEFAULT_API = 'http://localhost:5000'
-const API_BASE = import.meta.env.VITE_API_URL || DEFAULT_API
-const API_URL = `${API_BASE}/api/auth`
+const API_URL = `${import.meta.env.VITE_API_URL}/api/auth`;
 
 class AuthService {
   // ✅ Login
@@ -15,21 +12,30 @@ class AuthService {
     });
 
     if (!response.ok) {
-      const error = await response.json()
-      // If validation errors are present, prefer the first field message
-      if (error && Array.isArray(error.errors) && error.errors.length > 0) {
-        throw new Error(error.errors[0].message || error.message || 'Login failed')
-      }
-      throw new Error(error.message || 'Login failed')
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || "Login failed");
     }
-    
-    const data = await response.json()
-    // Backend returns: { success: true, data: { user, tokens } }
-    // Return both the tokens object and a top-level access token for compatibility
-    return {
-      user: data.data.user,
-      tokens: data.data.tokens,
-      token: data.data.tokens?.accessToken || null
+
+    const data = await response.json();
+
+    // Backend may return tokens in different shapes. Normalize to { user, token }
+    // Common shapes handled:
+    //  - { data: { user, tokens: { accessToken, refreshToken } } }
+    //  - { data: { user, token } }
+    //  - { user, token }
+    //  - { user, tokens: { accessToken } }
+    const user = data.data?.user || data.user;
+
+    // Try to grab an access token from multiple possible locations
+    const token =
+      data.data?.tokens?.accessToken ||
+      data.tokens?.accessToken ||
+      data.data?.token ||
+      data.token ||
+      null;
+
+    if (!token) {
+      console.warn('⚠️ No access token returned from backend. Received response:', data);
     }
 
     return { user, token };
@@ -45,19 +51,8 @@ class AuthService {
     });
 
     if (!response.ok) {
-      const error = await response.json()
-      if (error && Array.isArray(error.errors) && error.errors.length > 0) {
-        throw new Error(error.errors[0].message || error.message || 'Signup failed')
-      }
-      throw new Error(error.message || 'Signup failed')
-    }
-    
-    const data = await response.json()
-    // Backend returns data.tokens
-    return {
-      user: data.data.user,
-      tokens: data.data.tokens,
-      token: data.data.tokens?.accessToken || null
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || "Signup failed");
     }
 
     const data = await response.json();

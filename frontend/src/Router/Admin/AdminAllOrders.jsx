@@ -32,7 +32,8 @@ const AdminAllOrders = () => {
       setOrders(orderList);
     } catch (err) {
       console.error("Error fetching orders:", err);
-      setError("Failed to load orders. Please try again.");
+      // Surface backend/network error message to the UI for easier debugging
+      setError(err.message || "Failed to load orders. Please try again.");
     } finally {
       setLoading(false);
     }

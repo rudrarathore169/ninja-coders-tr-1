@@ -1,28 +1,35 @@
 const API_URL = `${import.meta.env.VITE_API_URL}/api/orders`
 
+// Helpful dev-time warning when VITE_API_URL is not set
+if (!import.meta.env.VITE_API_URL) {
+  console.warn('[orderService] VITE_API_URL is not defined. Requests may fail.');
+} else {
+  console.debug('[orderService] API base URL:', import.meta.env.VITE_API_URL);
+}
+
 class OrderService {
   // Create order (guest or authenticated)
   async createOrder(orderData, token = null) {
     const headers = {
       'Content-Type': 'application/json'
     }
-    
+
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
     }
-    
+
     const response = await fetch(`${API_URL}`, {
       method: 'POST',
       headers,
       credentials: 'include',
       body: JSON.stringify(orderData)
     })
-    
+
     if (!response.ok) {
       const error = await response.json()
       throw new Error(error.message || 'Order creation failed')
     }
-    
+
     const data = await response.json()
     return data.data // Returns order object
   }
@@ -36,7 +43,7 @@ class OrderService {
       },
       credentials: 'include'
     })
-    
+
     const data = await response.json()
     return data.data
   }
@@ -49,19 +56,25 @@ class OrderService {
       page,
       limit
     })
-    
-    const response = await fetch(`${API_URL}?${params}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include'
-    })
-    
-    const data = await response.json()
-    return {
-      orders: data.data,
-      pagination: data.pagination
+    const headers = { 'Content-Type': 'application/json' }
+    if (token) headers['Authorization'] = `Bearer ${token}`
+
+    const url = `${API_URL}?${params}`
+    try {
+      const response = await fetch(url, {
+        headers,
+        credentials: 'include'
+      })
+
+      const data = await response.json()
+      return {
+        orders: data.data,
+        pagination: data.pagination
+      }
+    } catch (err) {
+      // Re-throw a clearer error including the URL and original error
+      console.error('[orderService] Failed fetching orders from', url, err)
+      throw new Error(`Network error while fetching orders from ${url}: ${err.message}`)
     }
   }
 
@@ -76,7 +89,7 @@ class OrderService {
       credentials: 'include',
       body: JSON.stringify({ status })
     })
-    
+
     const data = await response.json()
     return data.data
   }

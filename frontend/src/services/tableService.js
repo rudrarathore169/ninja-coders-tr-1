@@ -10,13 +10,14 @@ class TableService {
 
   // Admin: Get all tables
   async getTables(token) {
+    const headers = { 'Content-Type': 'application/json' }
+    if (token) headers['Authorization'] = `Bearer ${token}`
+
     const response = await fetch(`${API_URL}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      headers,
+      credentials: 'include'
     })
-    
+
     const data = await response.json()
     return data.data
   }
@@ -31,7 +32,7 @@ class TableService {
       },
       body: JSON.stringify(tableData)
     })
-    
+
     const data = await response.json()
     return data.data
   }

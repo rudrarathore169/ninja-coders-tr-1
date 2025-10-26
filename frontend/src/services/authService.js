@@ -5,15 +5,15 @@ const API_BASE = import.meta.env.VITE_API_URL || DEFAULT_API
 const API_URL = `${API_BASE}/api/auth`
 
 class AuthService {
-  // Login
+  // ✅ Login
   async login(email, password) {
     const response = await fetch(`${API_URL}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // Important for cookies
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include", // Important for cookies
       body: JSON.stringify({ email, password }),
-    })
-    
+    });
+
     if (!response.ok) {
       const error = await response.json()
       // If validation errors are present, prefer the first field message
@@ -31,17 +31,19 @@ class AuthService {
       tokens: data.data.tokens,
       token: data.data.tokens?.accessToken || null
     }
+
+    return { user, token };
   }
 
-  // Signup
-  async signup(name, email, password, role = 'customer') {
+  // ✅ Signup
+  async signup(name, email, password, role = "customer") {
     const response = await fetch(`${API_URL}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({ name, email, password, role }),
-    })
-    
+    });
+
     if (!response.ok) {
       const error = await response.json()
       if (error && Array.isArray(error.errors) && error.errors.length > 0) {
@@ -57,37 +59,40 @@ class AuthService {
       tokens: data.data.tokens,
       token: data.data.tokens?.accessToken || null
     }
+
+    const data = await response.json();
+    const user = data.data?.user || data.user;
+    const token = data.data?.tokens?.accessToken || data.tokens?.accessToken || data.data?.token || data.token || null;
+    return { user, token };
   }
 
-  // Get current user
+  // ✅ Get current user (for persistent login)
   async getCurrentUser(token) {
     const response = await fetch(`${API_URL}/me`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-      credentials: 'include'
-    })
-    
-    if (!response.ok) {
-      throw new Error('Failed to get user')
-    }
-    
-    const data = await response.json()
-    return data.data.user
+      credentials: "include",
+    });
+
+    if (!response.ok) throw new Error("Failed to get user");
+
+    const data = await response.json();
+    return data.data?.user || data.user;
   }
 
-  // Logout
+  // ✅ Logout
   async logout(token) {
     await fetch(`${API_URL}/logout`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-      credentials: 'include'
-    })
+      credentials: "include",
+    });
   }
 }
 
-export default new AuthService()
+export default new AuthService();

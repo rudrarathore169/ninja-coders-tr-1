@@ -8,7 +8,7 @@ class MenuService {
   // ============================
   // Get all menu items
   // ============================
-  async getMenuItems({ search = '', category = '', page = 1, limit = 100, sort = 'name' } = {}) {
+  async getMenuItems({ search = '', category = '', page = 1, limit = 100, sort = 'name' } = {}, token = null) {
     try {
       const params = new URLSearchParams({
         ...(search && { search }),
@@ -21,7 +21,11 @@ class MenuService {
       const url = `${API_URL}/items?${params}`;
       console.log('➡️ Fetching menu items from:', url);
 
-      const response = await fetch(url);
+
+      const headers = {}
+      if (token) headers['Authorization'] = `Bearer ${token}`
+
+      const response = await fetch(url, { headers, credentials: 'include' });
 
       console.log('⬅️ Response status:', response.status, response.statusText);
 
@@ -57,7 +61,7 @@ class MenuService {
       const url = `${API_URL}/items/${id}`;
       console.log('➡️ Fetching menu item:', url);
 
-      const response = await fetch(url);
+      const response = await fetch(url, { credentials: 'include' });
       console.log('⬅️ Response status:', response.status);
 
       if (!response.ok) throw new Error(`Failed to fetch menu item (HTTP ${response.status})`);
@@ -78,7 +82,7 @@ class MenuService {
       const url = `${API_URL}/categories`;
       console.log('➡️ Fetching categories from:', url);
 
-      const response = await fetch(url);
+      const response = await fetch(url, { credentials: 'include' });
       console.log('⬅️ Response status:', response.status);
 
       if (!response.ok) throw new Error(`Failed to fetch categories (HTTP ${response.status})`);
@@ -123,12 +127,12 @@ class MenuService {
   // ============================
   async updateMenuItem(id, itemData, token) {
     try {
+      const headers = { 'Content-Type': 'application/json' }
+      if (token) headers['Authorization'] = `Bearer ${token}`
+
       const response = await fetch(`${API_URL}/items/${id}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers,
         body: JSON.stringify(itemData)
       });
 
@@ -152,10 +156,8 @@ class MenuService {
     try {
       const response = await fetch(`${API_URL}/items/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: token ? { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' },
+        credentials: 'include'
       });
 
       if (!response.ok) {

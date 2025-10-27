@@ -9,6 +9,7 @@ const CustomerCart = () => {
   const navigate = useNavigate()
   const items = useSelector(state => state.cart.items)
   const tableToken = useSelector(state => state.cart.tableToken)
+  const token = useSelector(state => state.auth.token)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -44,7 +45,7 @@ const CustomerCart = () => {
         meta: tableToken ? { tableToken } : {}
       }
 
-      const created = await orderService.createOrder(orderData)
+  const created = await orderService.createOrder(orderData, token)
       dispatch(clearCart())
       try { window.alert('Order placed successfully') } catch (_) {}
       // navigate to order status page if created and has id

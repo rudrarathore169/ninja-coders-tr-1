@@ -88,7 +88,7 @@ class MenuService {
       if (!response.ok) throw new Error(`Failed to fetch categories (HTTP ${response.status})`);
 
       const data = await response.json();
-      return data.data || [];
+      return data.data?.categories || [];
     } catch (error) {
       console.error('❌ Get categories error:', error);
       throw error;
@@ -175,7 +175,7 @@ class MenuService {
   // ============================
   // Toggle item availability
   // ============================
-  async toggleAvailability(id, available, token) {
+  async toggleAvailability(id, availability, token) {
     try {
       const response = await fetch(`${API_URL}/items/${id}/availability`, {
         method: 'PATCH',
@@ -183,7 +183,7 @@ class MenuService {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ available })
+        body: JSON.stringify({ availability })
       });
 
       if (!response.ok) {

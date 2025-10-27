@@ -67,10 +67,7 @@ class OrderService {
       })
 
       const data = await response.json()
-      return {
-        orders: data.data,
-        pagination: data.pagination
-      }
+      return data.data || []
     } catch (err) {
       // Re-throw a clearer error including the URL and original error
       console.error('[orderService] Failed fetching orders from', url, err)
@@ -81,6 +78,22 @@ class OrderService {
   // Update order status (staff/admin)
   async updateOrderStatus(orderId, status, token) {
     const response = await fetch(`${API_URL}/${orderId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({ status })
+    })
+
+    const data = await response.json()
+    return data.data
+  }
+
+  // Update order payment status (staff/admin)
+  async updateOrderPayment(orderId, status, token) {
+    const response = await fetch(`${API_URL}/${orderId}/payment`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,

@@ -7,7 +7,8 @@ const menuItemSchema = new mongoose.Schema({
   categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "MenuCategory", required: true },
   availability: { type: Boolean, default: true },
   tags: { type: [String], default: [] },
-  popularity: { type: Number, default: 0 }
+  popularity: { type: Number, default: 0 },
+  imageUrl: { type: String, default: "" }
 }, { timestamps: true });
 
 menuItemSchema.index({ categoryId: 1, name: 1 });

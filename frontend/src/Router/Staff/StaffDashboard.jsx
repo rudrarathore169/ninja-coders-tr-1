@@ -17,8 +17,7 @@ const StaffDashboard = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true)
-      const res = await orderService.getOrders({}, token)
-      const orderList = Array.isArray(res) ? res : res?.orders || res?.data || []
+      const orderList = await orderService.getOrders({}, token)
       setOrders(orderList)
       setError(null)
     } catch (err) {
@@ -89,7 +88,7 @@ const StaffDashboard = () => {
                   <td className="px-4 py-3 text-gray-600">{order.table?.number ?? '—'}</td>
                   <td className="px-4 py-3 text-gray-600">{order.customer?.name ?? 'Guest'}</td>
                   <td className="px-4 py-3 text-gray-600">{order.items?.length ?? 0}</td>
-                  <td className="px-4 py-3 text-gray-800 font-semibold">₹{order.total?.toFixed(2) ?? '0.00'}</td>
+                  <td className="px-4 py-3 text-gray-800 font-semibold">₹{order.totals?.toFixed(2) ?? '0.00'}</td>
                   <td className="px-4 py-3 text-gray-700">{order.status}</td>
                   <td className="px-4 py-3 text-gray-500">
                     {order.createdAt ? format(new Date(order.createdAt), 'dd MMM yyyy, HH:mm') : '—'}

@@ -4,6 +4,7 @@ import {
   getOrderById,
   listOrders,
   updateOrderStatus,
+  updateOrderPayment,
   cancelOrder
 } from '../controllers/orderController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
@@ -46,6 +47,16 @@ router.patch('/:id/status',
   validateOrderStatus,
   handleValidationErrors,
   updateOrderStatus
+);
+
+// Update order payment status (staff or admin)
+router.patch('/:id/payment',
+  authenticate,
+  requireStaff,
+  [param('id').isMongoId().withMessage('Invalid order ID'),
+   body('status').isIn(['pending', 'paid', 'failed', 'refunded']).withMessage('Invalid payment status')],
+  handleValidationErrors,
+  updateOrderPayment
 );
 
 // Cancel order (customer who owns it or staff/admin)

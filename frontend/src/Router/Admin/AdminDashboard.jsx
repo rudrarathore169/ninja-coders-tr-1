@@ -29,13 +29,10 @@ const AdminDashboard = () => {
       setLoading(true);
 
       // Fetch all necessary data
-      const ordersRes = await orderService.getOrders({}, token);
+      const orders = await orderService.getOrders({}, token);
       const tablesRes = await tableService.getTables(token);
       const menuRes = await menuService.getMenuItems({}, token);
 
-      const orders = Array.isArray(ordersRes)
-        ? ordersRes
-        : ordersRes?.orders || [];
       const tables = Array.isArray(tablesRes)
         ? tablesRes
         : tablesRes?.tables || [];
@@ -45,7 +42,13 @@ const AdminDashboard = () => {
 
       // Calculate stats
       const totalOrders = orders.length;
-      const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+      const totalRevenue = orders.reduce((sum, o) => {
+        // Only count revenue for paid orders
+        if (o.payment?.status === 'paid') {
+          return sum + (parseFloat(o.totals) || 0);
+        }
+        return sum;
+      }, 0);
       const totalTables = tables.length;
       const totalMenuItems = menuItems.length;
 

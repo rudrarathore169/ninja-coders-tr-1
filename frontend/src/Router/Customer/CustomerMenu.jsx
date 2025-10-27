@@ -1,82 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import menuService from '../../services/menuService'
+import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '../../store/slices/cartSlice'
+import {
+  fetchMenuItems,
+  fetchCategories,
+  setSearchFilter,
+  setCategoryFilter
+} from '../../store/slices/menuSlice'
 
 const CustomerMenu = () => {
   const dispatch = useDispatch()
-
-  const [menuItems, setMenuItems] = useState([])
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { items: menuItems, categories, loading, error, lastUpdated } = useSelector((state) => state.menu)
 
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
 
   useEffect(() => {
-    fetchInitialData()
-  }, [])
-
-  const fetchInitialData = async () => {
-    setLoading(true)
-    try {
-      const [catRes, itemsRes] = await Promise.all([
-        menuService.getCategories(),
-        menuService.getMenuItems({ limit: 100 })
-      ])
-
-      // Robust extraction to handle different response shapes
-      const cats = Array.isArray(catRes)
-        ? catRes
-        : Array.isArray(catRes.categories)
-          ? catRes.categories
-          : []
-
-      const items = Array.isArray(itemsRes)
-        ? itemsRes
-        : Array.isArray(itemsRes.items)
-          ? itemsRes.items
-          : Array.isArray(itemsRes.menuItems)
-            ? itemsRes.menuItems
-            : Array.isArray(itemsRes.data)
-              ? itemsRes.data
-              : []
-
-      setCategories(cats)
-      setMenuItems(items)
-      setError(null)
-    } catch (err) {
-      console.error('Failed to load menu:', err)
-      setError(err.message || 'Failed to load menu')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchMenuItems = async (opts = {}) => {
-    setLoading(true)
-    try {
-      const data = await menuService.getMenuItems(opts)
-      const items = Array.isArray(data)
-        ? data
-        : Array.isArray(data.items)
-          ? data.items
-          : Array.isArray(data.menuItems)
-            ? data.menuItems
-            : Array.isArray(data.data)
-              ? data.data
-              : []
-
-      setMenuItems(items)
-      setError(null)
-    } catch (err) {
-      console.error('Failed to fetch menu items:', err)
-      setError(err.message || 'Failed to fetch menu items')
-    } finally {
-      setLoading(false)
-    }
-  }
+    dispatch(fetchCategories())
+    dispatch(fetchMenuItems({ limit: 100 }))
+  }, [dispatch])
 
   const handleSearch = (e) => {
     const val = e.target.value
@@ -87,7 +29,7 @@ const CustomerMenu = () => {
     const opts = { limit: 100 }
     if (search) opts.search = search
     if (selectedCategory) opts.categoryId = selectedCategory
-    fetchMenuItems(opts)
+    dispatch(fetchMenuItems(opts))
   }
 
   useEffect(() => {
@@ -127,7 +69,7 @@ const CustomerMenu = () => {
           <p className="font-semibold">Error loading menu</p>
           <p className="text-sm">{error}</p>
           <button
-            onClick={fetchInitialData}
+            onClick={() => dispatch(fetchMenuItems({ limit: 100 }))}
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
           >
             Retry

@@ -23,6 +23,7 @@ import AdminDashboard from "./Admin/AdminDashboard"
 import AdminMenuManagement from "./Admin/AdminMenuManagement"
 import AdminTableManagement from "./Admin/AdminTableManagement"
 import AdminAllOrders from "./Admin/AdminAllOrders"
+import AdminOrderDetail from "./Admin/AdminOrderDetail"
 import AdminAnalytics from "./Admin/AdminAnalytics"
 
 // Auth pages
@@ -118,6 +119,10 @@ const Router = createBrowserRouter([
       {
         path: "orders",
         element: <AdminAllOrders />
+      },
+      {
+        path: "order/:id",
+        element: <AdminOrderDetail />
       },
       {
         path: "analytics",

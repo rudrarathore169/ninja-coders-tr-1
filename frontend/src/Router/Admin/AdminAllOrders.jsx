@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import orderService from "../../services/orderService";
 import { format } from "date-fns";
 import { Loader2, RefreshCcw, Eye, CircleCheck } from "lucide-react";
@@ -15,6 +16,7 @@ const statusColors = {
 
 const AdminAllOrders = () => {
   const { token } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -136,9 +138,7 @@ const AdminAllOrders = () => {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
-                      onClick={() =>
-                        alert(`View order: ${order.orderNumber}`)
-                      }
+                      onClick={() => navigate(`/admin/order/${order._id}`)}
                       className="text-orange-600 hover:text-orange-800 flex items-center justify-center gap-1"
                     >
                       <Eye className="h-4 w-4" /> View

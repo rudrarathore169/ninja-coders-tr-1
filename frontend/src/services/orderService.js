@@ -1,8 +1,10 @@
-const API_URL = `${import.meta.env.VITE_API_URL}/api/orders`
+// Use VITE_API_URL when provided, otherwise fall back to localhost backend
+const DEFAULT_API = 'http://localhost:5000'
+const API_BASE = import.meta.env.VITE_API_URL || DEFAULT_API
+const API_URL = `${API_BASE}/api/orders`
 
-// Helpful dev-time warning when VITE_API_URL is not set
 if (!import.meta.env.VITE_API_URL) {
-  console.warn('[orderService] VITE_API_URL is not defined. Requests may fail.');
+  console.warn('[orderService] VITE_API_URL is not defined. Falling back to', DEFAULT_API);
 } else {
   console.debug('[orderService] API base URL:', import.meta.env.VITE_API_URL);
 }
@@ -26,7 +28,10 @@ class OrderService {
     })
 
     if (!response.ok) {
-      const error = await response.json()
+      const error = await response.json().catch(() => ({}))
+      if (error && Array.isArray(error.errors) && error.errors.length) {
+        throw new Error(error.errors[0].message || error.message || 'Order creation failed')
+      }
       throw new Error(error.message || 'Order creation failed')
     }
 
@@ -44,6 +49,11 @@ class OrderService {
       credentials: 'include'
     })
 
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}))
+      throw new Error(error.message || 'Failed to fetch order')
+    }
+
     const data = await response.json()
     return data.data
   }
@@ -52,7 +62,7 @@ class OrderService {
   async getOrders({ status = '', table = '', page = 1, limit = 20 }, token) {
     const params = new URLSearchParams({
       ...(status && { status }),
-      ...(table && { table }),
+      ...(table && { tableId: table }),
       page,
       limit
     })
@@ -65,6 +75,11 @@ class OrderService {
         headers,
         credentials: 'include'
       })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}))
+        throw new Error(error.message || `Failed to fetch orders (${response.status})`)
+      }
 
       const data = await response.json()
       return data.data || []
@@ -86,6 +101,10 @@ class OrderService {
       credentials: 'include',
       body: JSON.stringify({ status })
     })
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}))
+      throw new Error(error.message || 'Failed to update order status')
+    }
 
     const data = await response.json()
     return data.data
@@ -102,6 +121,10 @@ class OrderService {
       credentials: 'include',
       body: JSON.stringify({ status })
     })
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}))
+      throw new Error(error.message || 'Failed to update order payment')
+    }
 
     const data = await response.json()
     return data.data

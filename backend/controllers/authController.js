@@ -22,8 +22,11 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password, role = 'customer' } = req.body;
 
+  // Normalize input early
+  const normalizedEmail = email?.toLowerCase().trim();
+
   // Check if user already exists
-  const existingUser = await User.findOne({ email: email.toLowerCase() });
+  const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) {
     return res.status(400).json({
       success: false,
@@ -37,8 +40,8 @@ export const register = asyncHandler(async (req, res) => {
 
   // Create new user
   const user = new User({
-    name: name.trim(),
-    email: email.toLowerCase().trim(),
+    name: (name || '').toString().trim(),
+    email: normalizedEmail,
     passwordHash,
     role,
   });
@@ -86,16 +89,35 @@ export const login = asyncHandler(async (req, res) => {
   }
 
   // 2. Find user by email AND explicitly select the passwordHash
-  const user = await User.findOne({ email: email.toLowerCase() }).select(
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = await User.findOne({ email: normalizedEmail }).select(
     '+passwordHash'
   );
 
-  // 3. Check if user exists AND if password is valid in one step
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid email or password',
-    });
+  // 3. Check if user exists
+  if (!user) {
+    // Do not reveal whether email exists
+    return res.status(401).json({ success: false, message: 'Invalid email or password' });
+  }
+
+  // 4. Ensure passwordHash is present
+  if (!user.passwordHash) {
+    // This should not normally happen; log for debugging and return generic error
+    console.error(`Missing passwordHash for user ${user._id} (${user.email})`);
+    return res.status(500).json({ success: false, message: 'Server error: unable to verify credentials' });
+  }
+
+  // 5. Verify password
+  let isPasswordValid = false;
+  try {
+    isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+  } catch (err) {
+    console.error('Error comparing password:', err);
+    return res.status(500).json({ success: false, message: 'Server error: unable to verify credentials' });
+  }
+
+  if (!isPasswordValid) {
+    return res.status(401).json({ success: false, message: 'Invalid email or password' });
   }
 
   // Generate tokens

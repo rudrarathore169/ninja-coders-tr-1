@@ -17,20 +17,39 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   // Optionally validate menu item ids and prices (basic sanity check)
   // We'll accept the items as provided but ensure required fields exist
-  const normalizedItems = items.map(it => ({
+  const normalizedItems = items.map((it) => ({
     menuItemId: it.menuItemId,
-    name: it.name,
+    name: (it.name || '').toString().trim(),
     price: parseFloat(it.price),
     qty: parseInt(it.qty, 10) || 1,
     note: it.note || ''
   }));
 
+  // Validate item fields strictly and provide clear error messages
+  for (let i = 0; i < normalizedItems.length; i++) {
+    const it = normalizedItems[i];
+    if (!it.name) {
+      return res.status(400).json({ success: false, message: `Item at index ${i} is missing a name` });
+    }
+    if (Number.isNaN(it.price) || it.price <= 0) {
+      return res.status(400).json({ success: false, message: `Item '${it.name}' at index ${i} has an invalid price` });
+    }
+    if (Number.isNaN(it.qty) || it.qty < 1) {
+      return res.status(400).json({ success: false, message: `Item '${it.name}' at index ${i} has an invalid quantity` });
+    }
+  }
+
   // Calculate totals
   const totals = calculateOrderTotal(normalizedItems);
 
+  // Normalize tableId if provided
+  const normalizedTableId = typeof tableId === 'string' ? tableId.trim() : tableId || null;
+
+  const customerId = req.user ? req.user._id : null;
+
   const order = new Order({
-    tableId: tableId || null,
-    customerId: req.user ? req.user._id : null,
+    tableId: normalizedTableId,
+    customerId,
     orderNumber: generateOrderNumber(),
     items: normalizedItems,
     totals,
@@ -38,7 +57,12 @@ export const createOrder = asyncHandler(async (req, res) => {
     meta: meta || {}
   });
 
-  await order.save();
+  try {
+    await order.save();
+  } catch (err) {
+    console.error('Error saving order:', err);
+    return res.status(500).json({ success: false, message: 'Failed to place order' });
+  }
 
   res.status(201).json({
     success: true,
@@ -67,7 +91,10 @@ export const listOrders = asyncHandler(async (req, res) => {
     if (['staff', 'admin'].includes(user.role)) {
       // allow filters via query: tableId, status
       if (req.query.tableId) query.tableId = req.query.tableId;
-      if (req.query.status) query.status = req.query.status;
+      if (req.query.status) {
+        if (!isValidOrderStatus(req.query.status)) return res.status(400).json({ success: false, message: 'Invalid status filter' });
+        query.status = req.query.status;
+      }
     } else {
       // customer: only their orders
       query.customerId = user._id;
@@ -77,15 +104,21 @@ export const listOrders = asyncHandler(async (req, res) => {
     return res.status(401).json({ success: false, message: 'Authentication required to list orders' });
   }
 
-  const orders = await Order.find(query)
-    .populate({
-      path: 'items.menuItemId',
-      select: 'name description price categoryId availability tags popularity imageUrl'
-    })
-    .populate('tableId', 'tableNumber qrSlug')
-    .populate('customerId', 'name email')
-    .sort({ createdAt: -1 })
-    .limit(200);
+  let orders;
+  try {
+    orders = await Order.find(query)
+      .populate({
+        path: 'items.menuItemId',
+        select: 'name description price categoryId availability tags popularity imageUrl'
+      })
+      .populate('tableId', 'tableNumber qrSlug')
+      .populate('customerId', 'name email')
+      .sort({ createdAt: -1 })
+      .limit(200);
+  } catch (err) {
+    console.error('Error fetching orders:', err);
+    return res.status(500).json({ success: false, message: 'Failed to retrieve orders' });
+  }
 
   res.status(200).json({ success: true, message: 'Orders retrieved', data: orders });
 });

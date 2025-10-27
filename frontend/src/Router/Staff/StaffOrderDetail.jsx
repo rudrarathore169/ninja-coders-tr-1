@@ -43,11 +43,27 @@ const StaffOrderDetail = () => {
     if (!orderId) return
     try {
       setUpdating(true)
-      const updated = await orderService.updateOrderStatus(orderId, newStatus, token)
-      setOrder(updated)
+      await orderService.updateOrderStatus(orderId, newStatus, token)
+      // Refetch the full order data after status update
+      await fetchOrder()
     } catch (err) {
       console.error('Failed to update status:', err)
       setError(err.message || 'Failed to update status')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  const handleUpdatePayment = async (newStatus) => {
+    if (!orderId) return
+    try {
+      setUpdating(true)
+      await orderService.updateOrderPayment(orderId, newStatus, token)
+      // Refetch the full order data after payment update
+      await fetchOrder()
+    } catch (err) {
+      console.error('Failed to update payment status:', err)
+      setError(err.message || 'Failed to update payment status')
     } finally {
       setUpdating(false)
     }
@@ -84,6 +100,7 @@ const StaffOrderDetail = () => {
           <div className="text-right">
             <p className="text-sm text-gray-500">Table: {order.table?.number ?? '—'}</p>
             <p className="text-sm font-semibold mt-2">Status: {order.status}</p>
+            <p className="text-sm font-semibold mt-1">Payment: {order.payment?.status ?? 'pending'}</p>
           </div>
         </div>
 
@@ -94,9 +111,9 @@ const StaffOrderDetail = () => {
               <li key={it._id} className="py-3 flex justify-between">
                 <div>
                   <p className="font-medium text-gray-800">{it.name}</p>
-                  <p className="text-sm text-gray-500">Qty: {it.quantity}</p>
+                  <p className="text-sm text-gray-500">Qty: {it.qty}</p>
                 </div>
-                <div className="text-gray-800 font-semibold">₹{(it.price * it.quantity).toFixed(2)}</div>
+                <div className="text-gray-800 font-semibold">₹{(parseFloat(it.price) * it.qty).toFixed(2)}</div>
               </li>
             ))}
           </ul>
@@ -104,7 +121,21 @@ const StaffOrderDetail = () => {
 
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-gray-600">Total: <span className="font-bold text-gray-800">₹{order.total?.toFixed(2) ?? '0.00'}</span></p>
+            <p className="text-gray-600">Total: <span className="font-bold text-gray-800">₹{order.totals?.toFixed(2) ?? '0.00'}</span></p>
+            <div className="flex items-center gap-2 mt-2">
+              <span className="text-sm text-gray-500">Payment:</span>
+              <select
+                value={order.payment?.status ?? 'pending'}
+                onChange={(e) => handleUpdatePayment(e.target.value)}
+                disabled={updating}
+                className="px-2 py-1 text-sm border border-gray-300 rounded"
+              >
+                <option value="pending">Pending</option>
+                <option value="paid">Paid</option>
+                <option value="failed">Failed</option>
+                <option value="refunded">Refunded</option>
+              </select>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => handleUpdateStatus('preparing')} disabled={updating} className="px-4 py-2 bg-blue-600 text-white rounded">Mark Preparing</button>

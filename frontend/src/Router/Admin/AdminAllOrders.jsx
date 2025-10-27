@@ -24,11 +24,7 @@ const AdminAllOrders = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await orderService.getOrders({}, token);
-      console.log("Orders Response:", res); // ✅ See structure
-      const orderList = Array.isArray(res)
-        ? res
-        : res?.orders || res?.data || [];
+      const orderList = await orderService.getOrders({}, token);
       setOrders(orderList);
     } catch (err) {
       console.error("Error fetching orders:", err);
@@ -114,7 +110,7 @@ const AdminAllOrders = () => {
                     {order.items?.length ?? 0}
                   </td>
                   <td className="px-4 py-3 text-gray-800 font-semibold">
-                    ₹{order.total?.toFixed(2) ?? "0.00"}
+                    ₹{order.totals?.toFixed(2) ?? "0.00"}
                   </td>
                   <td className="px-4 py-3">
                     <span

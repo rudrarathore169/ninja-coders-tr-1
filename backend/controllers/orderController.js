@@ -143,6 +143,33 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 });
 
 /**
+ * Update order payment status (staff/admin)
+ * PATCH /api/orders/:id/payment
+ */
+export const updateOrderPayment = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const validPaymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
+  if (!validPaymentStatuses.includes(status)) {
+    return res.status(400).json({ success: false, message: 'Invalid payment status' });
+  }
+
+  const order = await Order.findById(id);
+  if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+  // Initialize payment object if it doesn't exist
+  if (!order.payment) {
+    order.payment = {};
+  }
+
+  order.payment.status = status;
+  await order.save();
+
+  res.status(200).json({ success: true, message: 'Order payment status updated', data: { id: order._id, payment: order.payment } });
+});
+
+/**
  * Cancel order (owner or staff)
  * POST /api/orders/:id/cancel
  */

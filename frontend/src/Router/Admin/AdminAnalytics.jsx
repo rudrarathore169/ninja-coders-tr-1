@@ -35,8 +35,7 @@ const AdminAnalytics = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await orderService.getOrders({}, token);
-      const list = Array.isArray(res) ? res : res?.orders || [];
+      const list = await orderService.getOrders({}, token);
       setOrders(list);
     } catch (err) {
       console.error("Error fetching analytics:", err);
@@ -61,8 +60,9 @@ const AdminAnalytics = () => {
   let totalRevenue = 0;
 
   orders.forEach((order) => {
+    // Count all orders for analytics (both paid and pending)
     const date = format(new Date(order.createdAt), "dd MMM");
-    const total = order.total || 0;
+    const total = parseFloat(order.totals) || 0;
     totalRevenue += total;
     dailyStats[date] = (dailyStats[date] || 0) + total;
   });
@@ -75,7 +75,7 @@ const AdminAnalytics = () => {
   // ✅ Payment status breakdown
   const paymentStats = orders.reduce(
     (acc, order) => {
-      const status = order.paymentStatus || "unknown";
+      const status = order.payment?.status || "unknown";
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     },

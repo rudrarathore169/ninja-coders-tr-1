@@ -8,12 +8,51 @@ import {
   setCategoryFilter
 } from '../../store/slices/menuSlice'
 
+import { useSearchParams } from 'react-router-dom'
+import tableService from '../../services/tableService'
+
 const CustomerMenu = () => {
   const dispatch = useDispatch()
   const { items: menuItems, categories, loading, error, lastUpdated } = useSelector((state) => state.menu)
-
+  const [searchParams] = useSearchParams() // ← ADD THIS
+  const tableSlug = searchParams.get('table') // ← ADD THIS
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
+
+  const [table, setTable] = useState(null)
+  const [tableLoading, setTableLoading] = useState(false)
+  const [tableError, setTableError] = useState(null)
+
+  // ← ADD THIS EFFECT (Place BEFORE existing useEffect)
+  useEffect(() => {
+    const fetchTable = async () => {
+      if (!tableSlug) {
+        // No table specified - allow browsing without table
+        console.log('No table specified, showing menu anyway')
+        return
+      }
+
+      try {
+        setTableLoading(true)
+        const tableData = await tableService.getTableBySlug(tableSlug)
+
+        if (tableData.occupied) {
+          setTableError('This table is currently occupied. Please ask staff for assistance.')
+          return
+        }
+
+        setTable(tableData)
+        setTableError(null)
+      } catch (err) {
+        console.error('Error fetching table:', err)
+        setTableError(err.message || 'Failed to load table information')
+      } finally {
+        setTableLoading(false)
+      }
+    }
+
+    fetchTable()
+  }, [tableSlug])
 
   useEffect(() => {
     dispatch(fetchCategories())
@@ -48,15 +87,33 @@ const CustomerMenu = () => {
     dispatch(addToCart({ id, name: item.name, price: item.price, quantity: 1 }))
     // optionally show a toast - for now a small confirmation
     // eslint-disable-next-line no-undef
-    try { window.alert(`${item.name} added to cart`) } catch (_) {}
+    try { window.alert(`${item.name} added to cart`) } catch (_) { }
   }
 
-  if (loading) {
+  if (loading || tableLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-800 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading menu...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (tableError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Table Unavailable</h2>
+          <p className="text-gray-600 mb-6">{tableError}</p>
+          <button
+            onClick={() => window.location.href = '/'}
+            className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all"
+          >
+            Go to Home
+          </button>
         </div>
       </div>
     )
@@ -79,25 +136,42 @@ const CustomerMenu = () => {
     )
   }
   // Apply category filter on the frontend
-const filteredItems = menuItems.filter((item) => {
-  // match category
-  const matchesCategory =
-    selectedCategory === '' ||
-    item.category?.id === selectedCategory ||
-    item.category?._id === selectedCategory
+  const filteredItems = menuItems.filter((item) => {
+    // match category
+    const matchesCategory =
+      selectedCategory === '' ||
+      item.category?.id === selectedCategory ||
+      item.category?._id === selectedCategory
 
-  // match search (optional)
-  const matchesSearch =
-    search === '' ||
-    item.name.toLowerCase().includes(search.toLowerCase()) ||
-    item.tags?.some((tag) => tag.toLowerCase().includes(search.toLowerCase()))
+    // match search (optional)
+    const matchesSearch =
+      search === '' ||
+      item.name.toLowerCase().includes(search.toLowerCase()) ||
+      item.tags?.some((tag) => tag.toLowerCase().includes(search.toLowerCase()))
 
-  return matchesCategory && matchesSearch
-})
+    return matchesCategory && matchesSearch
+  })
 
 
   return (
     <div className="p-6">
+      {table && (
+      <div className="bg-orange-100 border border-orange-200 rounded-lg p-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-orange-900">
+              🍽️ Table {table.number}
+            </h2>
+            <p className="text-sm text-orange-700">
+              Your orders will be associated with this table
+            </p>
+          </div>
+          <div className="bg-green-100 px-4 py-2 rounded-full">
+            <span className="text-green-800 font-semibold text-sm">✓ Available</span>
+          </div>
+        </div>
+      </div>
+    )}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Menu</h1>
@@ -164,8 +238,8 @@ const filteredItems = menuItems.filter((item) => {
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="text-lg font-bold text-gray-800">{item.name}</h3>
                   <span className={`px-2 py-1 text-xs font-semibold rounded-full ${item.availability
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-red-100 text-red-800'
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-red-100 text-red-800'
                     }`}>
                     {item.availability ? 'Available' : 'Unavailable'}
                   </span>
@@ -182,7 +256,7 @@ const filteredItems = menuItems.filter((item) => {
                     className={`flex-1 px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${item.availability
                       ? 'bg-amber-800 text-white hover:bg-amber-900'
                       : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                    }`}
+                      }`}
                   >
                     Add to Cart
                   </button>

@@ -6,21 +6,22 @@ class TableService {
     const response = await fetch(`${API_URL}/by-slug/${slug}`, {
       credentials: 'include'
     });
-    
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
       throw new Error(error.message || 'Failed to fetch table');
     }
-    
+
     const data = await response.json();
     return data.data; // Returns table with number, occupied status, etc.
   }
 
   // Admin: Get all tables
   async getTables(token) {
-    const headers = { 'Content-Type': 'application/json' };
+    const headers = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
+    // Avoid sending Content-Type on simple GET requests (triggers unnecessary preflight)
     const response = await fetch(`${API_URL}`, {
       headers,
       credentials: 'include'
@@ -79,9 +80,10 @@ class TableService {
 
   // Generate customer-facing QR URL (not the API endpoint!)
   getCustomerQRUrl(qrSlug) {
-    // This generates the URL that customers will scan
     const baseUrl = window.location.origin;
-    return `${baseUrl}/menu/${qrSlug}`;
+    // Provide the query-param style QR URL as many scanners/pastes use this format
+    // This also remains compatible with the router which supports /m/:qrSlug
+    return `${baseUrl.replace(/\/$/, '')}/customer/menu?table=${qrSlug}`;
   }
 }
 

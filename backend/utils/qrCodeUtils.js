@@ -22,7 +22,8 @@ export const generateQRCodeSlug = (tableNumber) => {
  * @returns {string} Complete QR code URL
  */
 export const generateQRCodeURL = (qrSlug, baseUrl = 'http://localhost:3000') => {
-  return `${baseUrl}/table/${qrSlug}`;
+  // QR landing route in frontend is /m/:qrSlug (configured in Router.jsx)
+  return `${baseUrl.replace(/\/$/, '')}/m/${qrSlug}`;
 };
 
 /**
@@ -83,9 +84,12 @@ export const generateQRCodeData = (table, baseUrl = 'http://localhost:3000') => 
     tableId: table._id,
     _id: table._id,
     id: table._id,
+    // include both `number` and `tableNumber` for compatibility with various clients
+    number: table.number,
     tableNumber: table.number,
     qrSlug: table.qrSlug,
     qrUrl: qrUrl,
+    occupied: !!table.occupied,
     createdAt: table.createdAt,
     updatedAt: table.updatedAt
   };

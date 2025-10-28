@@ -48,7 +48,7 @@ router.get('/:id',
 );
 
 // Public: Get table by QR slug (used when scanning QR)
-router.get('/qr/:qrSlug',
+router.get('/by-slug/:qrSlug',  // ← CHANGE THIS LINE ONLY
   [param('qrSlug').notEmpty().withMessage('qrSlug is required')],
   handleValidationErrors,
   getTableByQrSlug

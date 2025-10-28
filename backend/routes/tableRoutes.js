@@ -4,11 +4,12 @@ import {
   getTableById,
   getTableByQrSlug,
   updateTable,
+  updateOccupancy,
   deleteTable,
   listTables
 } from '../controllers/tableController.js';
 import { authenticate } from '../middleware/authMiddleware.js';
-import { requireAdmin, requireTableAccess } from '../middleware/roleMiddleware.js';
+import { requireAdmin, requireTableAccess, requireStaff } from '../middleware/roleMiddleware.js';
 import { body, param, query } from 'express-validator';
 import { handleValidationErrors } from '../utils/validationUtils.js';
 
@@ -64,6 +65,18 @@ router.put('/:id',
   ],
   handleValidationErrors,
   updateTable
+);
+
+// Update occupancy (Staff/Admin)
+router.patch('/:id/occupancy',
+  authenticate,
+  requireStaff,
+  [
+    param('id').isMongoId().withMessage('Invalid table ID'),
+    body('occupied').isBoolean().withMessage('occupied must be boolean')
+  ],
+  handleValidationErrors,
+  updateOccupancy
 );
 
 // Delete table (Admin)

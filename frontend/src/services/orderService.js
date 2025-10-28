@@ -41,11 +41,11 @@ class OrderService {
 
   // Get order by ID
   async getOrder(orderId, token) {
+    const headers = {}
+    if (token) headers['Authorization'] = `Bearer ${token}`
+
     const response = await fetch(`${API_URL}/${orderId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
+      headers,
       credentials: 'include'
     })
 
@@ -66,7 +66,7 @@ class OrderService {
       page,
       limit
     })
-    const headers = { 'Content-Type': 'application/json' }
+    const headers = {}
     if (token) headers['Authorization'] = `Bearer ${token}`
 
     const url = `${API_URL}?${params}`

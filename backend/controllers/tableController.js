@@ -111,6 +111,27 @@ export const deleteTable = asyncHandler(async (req, res) => {
 	res.status(200).json({ success: true, message: 'Table deleted' });
 });
 
+/**
+ * Update table occupancy (Staff/Admin)
+ * PATCH /api/tables/:id/occupancy
+ */
+export const updateOccupancy = asyncHandler(async (req, res) => {
+	const { id } = req.params;
+	const { occupied } = req.body;
+
+	if (typeof occupied !== 'boolean') {
+		return res.status(400).json({ success: false, message: 'occupied field must be a boolean' });
+	}
+
+	const table = await Table.findById(id);
+	if (!table) return res.status(404).json({ success: false, message: 'Table not found' });
+
+	table.occupied = occupied;
+	await table.save();
+
+	res.status(200).json({ success: true, message: 'Table occupancy updated', data: generateQRCodeData(table, config.FRONTEND_URL) });
+});
+
 export default {
 	createTable,
 	listTables,

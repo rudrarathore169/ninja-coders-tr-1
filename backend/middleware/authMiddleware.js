@@ -8,9 +8,11 @@ import config from '../config/config.js';
  */
 export const authenticate = async (req, res, next) => {
   try {
+    // Allow preflight requests to pass through without authentication
+    if (req.method === 'OPTIONS') return next();
     // Get token from header
     const authHeader = req.header('Authorization');
-    
+
     if (!authHeader) {
       return res.status(401).json({
         success: false,
@@ -38,10 +40,10 @@ export const authenticate = async (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, config.JWT_SECRET);
-    
+
     // Get user from database
     const user = await User.findById(decoded.userId).select('-passwordHash');
-    
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -61,25 +63,25 @@ export const authenticate = async (req, res, next) => {
     req.user = user;
     req.userId = user._id;
     req.userRole = user.role;
-    
+
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
-    
+
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,
         message: 'Access denied. Invalid token.'
       });
     }
-    
+
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Access denied. Token has expired.'
       });
     }
-    
+
     return res.status(500).json({
       success: false,
       message: 'Internal server error during authentication.'
@@ -95,7 +97,7 @@ export const authenticate = async (req, res, next) => {
 export const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.header('Authorization');
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       // No token provided, continue without authentication
       req.user = null;
@@ -105,7 +107,7 @@ export const optionalAuth = async (req, res, next) => {
     }
 
     const token = authHeader.substring(7);
-    
+
     if (!token) {
       req.user = null;
       req.userId = null;
@@ -116,7 +118,7 @@ export const optionalAuth = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, config.JWT_SECRET);
     const user = await User.findById(decoded.userId).select('-passwordHash');
-    
+
     if (user) {
       req.user = user;
       req.userId = user._id;
@@ -126,7 +128,7 @@ export const optionalAuth = async (req, res, next) => {
       req.userId = null;
       req.userRole = null;
     }
-    
+
     next();
   } catch (error) {
     // If token is invalid, continue without authentication
@@ -144,7 +146,7 @@ export const optionalAuth = async (req, res, next) => {
 export const authenticateRefresh = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
-    
+
     if (!refreshToken) {
       return res.status(401).json({
         success: false,
@@ -154,10 +156,10 @@ export const authenticateRefresh = async (req, res, next) => {
 
     // Verify refresh token
     const decoded = jwt.verify(refreshToken, config.JWT_REFRESH_SECRET);
-    
+
     // Get user from database
     const user = await User.findById(decoded.userId).select('-passwordHash');
-    
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -169,25 +171,25 @@ export const authenticateRefresh = async (req, res, next) => {
     req.user = user;
     req.userId = user._id;
     req.userRole = user.role;
-    
+
     next();
   } catch (error) {
     console.error('Refresh token middleware error:', error);
-    
+
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         success: false,
         message: 'Invalid refresh token.'
       });
     }
-    
+
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Refresh token has expired.'
       });
     }
-    
+
     return res.status(500).json({
       success: false,
       message: 'Internal server error during refresh token verification.'

@@ -22,7 +22,8 @@ export const generateQRCodeSlug = (tableNumber) => {
  * @returns {string} Complete QR code URL
  */
 export const generateQRCodeURL = (qrSlug, baseUrl = 'http://localhost:3000') => {
-  return `${baseUrl}/table/${qrSlug}`;
+  // QR landing route in frontend is /m/:qrSlug (configured in Router.jsx)
+  return `${baseUrl.replace(/\/$/, '')}/m/${qrSlug}`;
 };
 
 /**
@@ -34,19 +35,19 @@ export const parseQRCodeSlug = (qrSlug) => {
   try {
     // Expected format: table-{number}-{timestamp}-{randomString}
     const parts = qrSlug.split('-');
-    
+
     if (parts.length < 4 || parts[0] !== 'table') {
       return null;
     }
-    
+
     const tableNumber = parseInt(parts[1]);
     const timestamp = parts[2];
     const randomString = parts.slice(3).join('-');
-    
+
     if (isNaN(tableNumber) || tableNumber <= 0) {
       return null;
     }
-    
+
     return {
       tableNumber,
       timestamp,
@@ -76,12 +77,19 @@ export const isValidQRCodeSlug = (qrSlug) => {
  */
 export const generateQRCodeData = (table, baseUrl = 'http://localhost:3000') => {
   const qrUrl = generateQRCodeURL(table.qrSlug, baseUrl);
-  
+
   return {
+    // Keep backward-compatible `tableId`, and include `_id` and `id` so frontend
+    // code that expects Mongo's `_id` property works correctly.
     tableId: table._id,
+    _id: table._id,
+    id: table._id,
+    // include both `number` and `tableNumber` for compatibility with various clients
+    number: table.number,
     tableNumber: table.number,
     qrSlug: table.qrSlug,
     qrUrl: qrUrl,
+    occupied: !!table.occupied,
     createdAt: table.createdAt,
     updatedAt: table.updatedAt
   };
@@ -109,7 +117,7 @@ export const generateTableSessionId = (qrSlug, userAgent = '', ipAddress = '') =
   const randomString = generateRandomString(12);
   const userAgentHash = userAgent ? userAgent.substring(0, 8) : '';
   const ipHash = ipAddress ? ipAddress.replace(/\./g, '') : '';
-  
+
   return `session-${qrSlug}-${timestamp}-${randomString}-${userAgentHash}-${ipHash}`;
 };
 
@@ -122,17 +130,17 @@ export const parseTableSessionId = (sessionId) => {
   try {
     // Expected format: session-{qrSlug}-{timestamp}-{randomString}-{userAgentHash}-{ipHash}
     const parts = sessionId.split('-');
-    
+
     if (parts.length < 6 || parts[0] !== 'session') {
       return null;
     }
-    
+
     const qrSlug = parts.slice(1, -4).join('-'); // Everything between 'session' and last 4 parts
     const timestamp = parts[parts.length - 4];
     const randomString = parts[parts.length - 3];
     const userAgentHash = parts[parts.length - 2];
     const ipHash = parts[parts.length - 1];
-    
+
     return {
       qrSlug,
       timestamp,
@@ -154,7 +162,7 @@ export const parseTableSessionId = (sessionId) => {
 export const generatePublicMenuQRCode = (baseUrl = 'http://localhost:3000') => {
   const qrSlug = `public-menu-${generateRandomString(16)}`;
   const qrUrl = `${baseUrl}/menu/public`;
-  
+
   return {
     qrSlug,
     qrUrl,
@@ -173,7 +181,7 @@ export const generatePublicMenuQRCode = (baseUrl = 'http://localhost:3000') => {
 export const generateCategoryQRCode = (categoryId, categoryName, baseUrl = 'http://localhost:3000') => {
   const qrSlug = `category-${categoryId}-${generateRandomString(12)}`;
   const qrUrl = `${baseUrl}/menu/category/${categoryId}`;
-  
+
   return {
     categoryId,
     categoryName,
@@ -194,7 +202,7 @@ export const generateCategoryQRCode = (categoryId, categoryName, baseUrl = 'http
 export const generateMenuItemQRCode = (itemId, itemName, baseUrl = 'http://localhost:3000') => {
   const qrSlug = `item-${itemId}-${generateRandomString(12)}`;
   const qrUrl = `${baseUrl}/menu/item/${itemId}`;
-  
+
   return {
     itemId,
     itemName,
@@ -214,7 +222,7 @@ export const isValidQRCodeURL = (url) => {
   try {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname;
-    
+
     // Check if it's a valid QR code URL pattern
     return (
       pathname.startsWith('/table/') ||
@@ -236,12 +244,12 @@ export const extractQRCodeType = (url) => {
   try {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname;
-    
+
     if (pathname.startsWith('/table/')) return 'table';
     if (pathname.startsWith('/menu/public')) return 'public-menu';
     if (pathname.startsWith('/menu/category/')) return 'category';
     if (pathname.startsWith('/menu/item/')) return 'menu-item';
-    
+
     return null;
   } catch (error) {
     return null;

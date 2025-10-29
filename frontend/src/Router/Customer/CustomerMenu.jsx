@@ -226,7 +226,7 @@ const CustomerMenu = () => {
               <div className="h-48 bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
                 {/* If backend provides imageUrl use it here, otherwise placeholder */}
                 {item.imageUrl ? (
-                  <img src={item.imageUrl} alt={item.name} className="h-full w-full object-contain" />
+                  <img src={item.imageUrl} alt={item.name} className="h-full w-full" />
                 ) : (
                   <svg className="w-16 h-16 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

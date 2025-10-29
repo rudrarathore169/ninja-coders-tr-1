@@ -291,6 +291,7 @@ export const getMenuItems = asyncHandler(async (req, res) => {
     availability: item.availability,
     tags: item.tags,
     popularity: item.popularity,
+    imageUrl: item.imageUrl,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt
   }));
@@ -339,6 +340,7 @@ export const getMenuItemById = asyncHandler(async (req, res) => {
     availability: menuItem.availability,
     tags: menuItem.tags,
     popularity: menuItem.popularity,
+    imageUrl: menuItem.imageUrl,
     createdAt: menuItem.createdAt,
     updatedAt: menuItem.updatedAt
   };
@@ -409,6 +411,7 @@ export const createMenuItem = asyncHandler(async (req, res) => {
     availability: menuItem.availability,
     tags: menuItem.tags,
     popularity: menuItem.popularity,
+    imageUrl: menuItem.imageUrl,
     createdAt: menuItem.createdAt,
     updatedAt: menuItem.updatedAt
   };

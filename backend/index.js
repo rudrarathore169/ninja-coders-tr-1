@@ -9,23 +9,25 @@ import corsConfig from "./config/cors.js";
 import config from "./config/config.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import { handleWebhook } from './controllers/paymentController.js';
-import cors from "./config/cors.js";
+import cors from 'cors';
 
 // Load environment variables
 dotenv.config();
-
-// Connect DB
 connectDB();
 
 const app = express();
 
-// ✅ ✅ Put this at the TOP
-app.use(cors());          // If using default CORS
-app.use(corsConfig);      // If using custom CORS (choose ONE)
+/* ✅ 1. STRIPE WEBHOOK FIRST — NO JSON PARSING, NO CORS */
+app.post(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  handleWebhook
+);
 
-// ✅ Logging + Security
-app.use(morgan('combined'));
+/* ✅ 2. NOW APPLY OTHER MIDDLEWARES */
+app.use(cors(corsConfig));   // ✅ Use ONLY your custom CORS configuration
 app.use(helmet());
+app.use(morgan("combined"));
 
 // Basic rate limiter
 const limiter = rateLimit({
@@ -39,11 +41,7 @@ app.use(limiter);
 
 // Stripe webhook - must be before express.json() in middleware ordering to access raw body
 // We mount it at /api/payments/webhook and use express.raw to preserve the raw bytes for signature verification.
-app.post(
-  '/api/payments/webhook',
-  express.raw({ type: 'application/json' }),
-  (req, res) => handleWebhook(req, res)
-);
+
 app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Parse URL-encoded bodies
 

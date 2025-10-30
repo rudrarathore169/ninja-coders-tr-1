@@ -13,14 +13,18 @@ import { handleWebhook } from './controllers/paymentController.js';
 // Load environment variables
 dotenv.config();
 
-// Connect to MongoDB
+// Connect DB
 connectDB();
 
 const app = express();
 
-// Middleware
-app.use(morgan('combined')); // Logging middleware
-app.use(helmet()); // Basic security headers
+// ✅ ✅ Put this at the TOP
+app.use(cors());          // If using default CORS
+app.use(corsConfig);      // If using custom CORS (choose ONE)
+
+// ✅ Logging + Security
+app.use(morgan('combined'));
+app.use(helmet());
 
 // Basic rate limiter
 const limiter = rateLimit({
@@ -31,7 +35,7 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use(corsConfig); // CORS configuration
+
 // Stripe webhook - must be before express.json() in middleware ordering to access raw body
 // We mount it at /api/payments/webhook and use express.raw to preserve the raw bytes for signature verification.
 app.post(

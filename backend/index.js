@@ -9,6 +9,7 @@ import corsConfig from "./config/cors.js";
 import config from "./config/config.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import { handleWebhook } from './controllers/paymentController.js';
+import cors from "./config/cors.js";
 
 // Load environment variables
 dotenv.config();

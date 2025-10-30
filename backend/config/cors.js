@@ -9,6 +9,7 @@ const corsOptions = {
     // List of allowed origins
     const allowedOrigins = [
       config.FRONTEND_URL,
+      'https://tr-1-project-ninja-coders-v2.vercel.app',
       'http://localhost:5173',
       'http://localhost:3001',
       'http://127.0.0.1:3000',
@@ -43,4 +44,4 @@ const corsOptions = {
   optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 };
 
-export default cors(corsOptions);
+export default corsOptions;

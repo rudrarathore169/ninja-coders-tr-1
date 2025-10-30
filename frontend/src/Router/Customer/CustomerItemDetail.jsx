@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import menuService from '../../services/menuService'
 import { addToCart } from '../../store/slices/cartSlice'
+import { addToast } from '../../store/slices/toastSlice'
 
 const CustomerItemDetail = () => {
   const { id } = useParams()
@@ -42,13 +43,19 @@ const CustomerItemDetail = () => {
   const handleAddToCart = () => {
     if (!item) return
     if (!item.availability) {
-      alert('This item is currently unavailable')
+      dispatch(addToast({
+        message: 'This item is currently unavailable',
+        type: 'warning'
+      }))
       return
     }
 
     const itemId = item.id || item._id
     dispatch(addToCart({ id: itemId, name: item.name, price: item.price, quantity }))
-    try { window.alert(`${item.name} added to cart`) } catch (_) {}
+    dispatch(addToast({
+      message: `${item.name} added to cart`,
+      type: 'success'
+    }))
     navigate('/customer/cart')
   }
 

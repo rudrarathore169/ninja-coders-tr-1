@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { addToCart } from '../../store/slices/cartSlice'
+import { addToast } from '../../store/slices/toastSlice'
 import {
   fetchMenuItems,
   fetchCategories,
@@ -8,8 +9,9 @@ import {
   setCategoryFilter
 } from '../../store/slices/menuSlice'
 
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import tableService from '../../services/tableService'
+import { Search, Filter, Plus, Minus } from 'lucide-react'
 
 const CustomerMenu = () => {
   const dispatch = useDispatch()
@@ -79,15 +81,19 @@ const CustomerMenu = () => {
 
   const handleAddToCart = (item) => {
     if (!item.availability && item.availability !== undefined) {
-      alert('Item is currently unavailable')
+      dispatch(addToast({
+        message: 'Item is currently unavailable',
+        type: 'warning'
+      }))
       return
     }
 
     const id = item.id || item._id
     dispatch(addToCart({ id, name: item.name, price: item.price, quantity: 1 }))
-    // optionally show a toast - for now a small confirmation
-    // eslint-disable-next-line no-undef
-    try { window.alert(`${item.name} added to cart`) } catch (_) { }
+    dispatch(addToast({
+      message: `${item.name} added to cart`,
+      type: 'success'
+    }))
   }
 
   if (loading || tableLoading) {

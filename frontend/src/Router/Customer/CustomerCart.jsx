@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { removeFromCart, updateQuantity, clearCart } from '../../store/slices/cartSlice'
+import { addToast } from '../../store/slices/toastSlice'
 import orderService from '../../services/orderService'
 import { useNavigate } from 'react-router-dom'
+import { ShoppingCart, Plus, Minus, Trash2, CreditCard } from 'lucide-react'
 
 const CustomerCart = () => {
   const dispatch = useDispatch()
@@ -31,7 +33,10 @@ const CustomerCart = () => {
 
   const handleCheckout = async () => {
     if (items.length === 0) {
-      alert('Cart is empty')
+      dispatch(addToast({
+        message: 'Cart is empty',
+        type: 'warning'
+      }))
       return
     }
 
@@ -45,9 +50,12 @@ const CustomerCart = () => {
         meta: tableToken ? { tableToken } : {}
       }
 
-  const created = await orderService.createOrder(orderData, token)
+      const created = await orderService.createOrder(orderData, token)
       dispatch(clearCart())
-      try { window.alert('Order placed successfully') } catch (_) {}
+      dispatch(addToast({
+        message: 'Order placed successfully!',
+        type: 'success'
+      }))
       // navigate to order status page if created and has id
       const orderId = created && (created.id || created._id)
       try {
@@ -64,6 +72,10 @@ const CustomerCart = () => {
     } catch (err) {
       console.error('Checkout failed:', err)
       setError(err.message || 'Checkout failed')
+      dispatch(addToast({
+        message: err.message || 'Checkout failed',
+        type: 'error'
+      }))
     } finally {
       setLoading(false)
     }

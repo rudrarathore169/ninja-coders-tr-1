@@ -5,11 +5,11 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import path from "path";
 import connectDB from "./config/db.js";
+import cors from 'cors';
 import corsConfig from "./config/cors.js";
 import config from "./config/config.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import { handleWebhook } from './controllers/paymentController.js';
-import cors from 'cors';
 
 // Load environment variables
 dotenv.config();

@@ -43,4 +43,4 @@ const corsOptions = {
   optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 };
 
-export default cors(corsOptions);
+export default corsOptions;

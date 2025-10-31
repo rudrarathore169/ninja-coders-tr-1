@@ -41,7 +41,7 @@ const AdminLayout = () => {
             <div className="hidden md:flex items-center space-x-4">
               <Link
                 to="/admin/dashboard"
-                className={`text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${isActive('dashboard') ? 'text-amber-600' : ''
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative flex items-center gap-2 ${isActive('dashboard') ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
                   }`}
               >
                 <Settings className="h-4 w-4" />
@@ -49,7 +49,7 @@ const AdminLayout = () => {
               </Link>
               <Link
                 to="/admin/orders"
-                className={`text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${isActive('orders') ? 'text-amber-600' : ''
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative flex items-center gap-2 ${isActive('orders') ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
                   }`}
               >
                 <ClipboardList className="h-4 w-4" />
@@ -57,7 +57,7 @@ const AdminLayout = () => {
               </Link>
               <Link
                 to="/admin/menu"
-                className={`text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${isActive('menu') ? 'text-amber-600' : ''
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative flex items-center gap-2 ${isActive('menu') ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
                   }`}
               >
                 <Coffee className="h-4 w-4" />
@@ -65,7 +65,7 @@ const AdminLayout = () => {
               </Link>
               <Link
                 to="/admin/tables"
-                className={`text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${isActive('tables') ? 'text-amber-600' : ''
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative flex items-center gap-2 ${isActive('tables') ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
                   }`}
               >
                 <Grid className="h-4 w-4" />
@@ -73,7 +73,7 @@ const AdminLayout = () => {
               </Link>
               <Link
                 to="/admin/analytics"
-                className={`text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${isActive('analytics') ? 'text-amber-600' : ''
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative flex items-center gap-2 ${isActive('analytics') ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
                   }`}
               >
                 <BarChart3 className="h-4 w-4" />

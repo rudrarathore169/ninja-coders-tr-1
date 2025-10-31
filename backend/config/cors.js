@@ -9,7 +9,7 @@ const corsOptions = {
     // List of allowed origins
     const allowedOrigins = [
       config.FRONTEND_URL,
-      'tr-1-project-ninja-coders.vercel.app',
+      'https://tr-1-project-ninja-coders.vercel.app',
       'https://tr-1-project-ninja-coders-v2.vercel.app',
       'http://localhost:5173',
       'http://localhost:3001',

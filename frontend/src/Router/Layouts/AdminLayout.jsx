@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
+import { LogOut, Menu, ChefHat, BarChart3, Settings, ClipboardList, Coffee, Grid } from 'lucide-react'
 import { logout } from '../../store/slices/authSlice'
 
 const AdminLayout = () => {
@@ -8,120 +9,171 @@ const AdminLayout = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
-  
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
   const handleLogout = () => {
-    // ✅ Use Redux logout action
     dispatch(logout())
-    // ✅ Navigate with replace to prevent back button issues
     navigate('/auth/login', { replace: true })
   }
-  
+
   const isActive = (path) => {
-    return location.pathname === `/admin/${path}`
+    return location.pathname === `/admin/${path}` ||
+      (path === 'orders' && location.pathname.startsWith('/admin/order/'))
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-gradient-to-r from-amber-50 to-amber-100 shadow-lg sticky top-0 z-50">
-        <div className="flex items-center justify-between px-6 py-4">
-          <Link to="/admin/dashboard" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="40" 
-              height="40" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              className="text-amber-800"
-            >
-              <path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/>
-              <path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/>
-              <path d="m2.1 21.8 6.4-6.3"/>
-              <path d="m19 5-7 7"/>
-            </svg>
-            <h1 className="text-2xl font-bold text-amber-900">Dine Lite</h1>
-            <span className="text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-semibold">
-              Admin
-            </span>
-          </Link>
+      <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            {/* Logo and Brand */}
+            <div className="flex items-center">
+              <Link to="/admin/dashboard" className="flex items-center space-x-2">
+                <ChefHat size={40} className="text-amber-600" />
+                <span className="text-xl font-bold text-gray-900">Scan & Dine</span>
+                <span className="text-sm bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-semibold">
+                  Admin
+                </span>
+              </Link>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <Link 
-              to="/admin/dashboard"
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                isActive('dashboard')
-                  ? 'bg-amber-800 text-white shadow-lg scale-105'
-                  : 'bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md'
-              }`}
-            >
-              Dashboard
-            </Link>
-            
-            <Link 
-              to="/admin/orders"
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                isActive('orders')
-                  ? 'bg-amber-800 text-white shadow-lg scale-105'
-                  : 'bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md'
-              }`}
-            >
-              Orders
-            </Link>
-            
-            <Link 
-              to="/admin/menu"
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                isActive('menu')
-                  ? 'bg-amber-800 text-white shadow-lg scale-105'
-                  : 'bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md'
-              }`}
-            >
-              Menu
-            </Link>
-            
-            <Link 
-              to="/admin/tables"
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                isActive('tables')
-                  ? 'bg-amber-800 text-white shadow-lg scale-105'
-                  : 'bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md'
-              }`}
-            >
-              Tables
-            </Link>
-            
-            <Link 
-              to="/admin/analytics"
-              className={`px-6 py-2 rounded-full font-semibold transition-all duration-300 ${
-                isActive('analytics')
-                  ? 'bg-amber-800 text-white shadow-lg scale-105'
-                  : 'bg-white text-amber-900 hover:bg-amber-800 hover:text-white shadow-md'
-              }`}
-            >
-              Analytics
-            </Link>
-
-            {/* User Info & Logout */}
-            <div className="ml-4 border-l-2 border-amber-300 pl-4 flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-sm font-semibold text-amber-900">{user?.name}</p>
-                <p className="text-xs text-amber-700">Administrator</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm rounded-full bg-white text-amber-900 hover:bg-red-600 hover:text-white shadow-md transition-all duration-300"
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
+              <Link
+                to="/admin/dashboard"
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${isActive('dashboard') ? 'text-amber-600' : ''
+                  }`}
               >
-                Logout
+                <Settings className="h-4 w-4" />
+                Dashboard
+              </Link>
+              <Link
+                to="/admin/orders"
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${isActive('orders') ? 'text-amber-600' : ''
+                  }`}
+              >
+                <ClipboardList className="h-4 w-4" />
+                Orders
+              </Link>
+              <Link
+                to="/admin/menu"
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${isActive('menu') ? 'text-amber-600' : ''
+                  }`}
+              >
+                <Coffee className="h-4 w-4" />
+                Menu
+              </Link>
+              <Link
+                to="/admin/tables"
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${isActive('tables') ? 'text-amber-600' : ''
+                  }`}
+              >
+                <Grid className="h-4 w-4" />
+                Tables
+              </Link>
+              <Link
+                to="/admin/analytics"
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${isActive('analytics') ? 'text-amber-600' : ''
+                  }`}
+              >
+                <BarChart3 className="h-4 w-4" />
+                Analytics
+              </Link>
+
+              {/* User Menu */}
+              <div className="flex items-center space-x-4 ml-4 pl-4 border-l border-gray-200">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm font-medium text-gray-700">{user?.name}</span>
+                  <span className="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full capitalize">
+                    Admin
+                  </span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-1 text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden flex items-center">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-gray-700 hover:text-amber-600 p-2"
+              >
+                <Menu className="h-6 w-6" />
               </button>
             </div>
           </div>
-        </div>
-      </nav>
 
-      <main className="container mx-auto px-6 py-8">
+          {/* Mobile Navigation */}
+          {isMenuOpen && (
+            <div className="md:hidden border-t border-gray-200 py-2">
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <Link
+                  to="/admin/dashboard"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Settings className="h-4 w-4" />
+                  Dashboard
+                </Link>
+                <Link
+                  to="/admin/orders"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <ClipboardList className="h-4 w-4" />
+                  Orders
+                </Link>
+                <Link
+                  to="/admin/menu"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Coffee className="h-4 w-4" />
+                  Menu
+                </Link>
+                <Link
+                  to="/admin/tables"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Grid className="h-4 w-4" />
+                  Tables
+                </Link>
+                <Link
+                  to="/admin/analytics"
+                  className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  Analytics
+                </Link>
+
+                <div className="border-t border-gray-200 pt-4 mt-4">
+                  <div className="px-3 py-2 text-sm text-gray-600">
+                    {user?.name} (Administrator)
+                  </div>
+                  <button
+                    onClick={() => {
+                      handleLogout()
+                      setIsMenuOpen(false)
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-700 text-base font-medium w-full"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>      <main className="container mx-auto px-6 py-8">
         <Outlet />
       </main>
     </div>

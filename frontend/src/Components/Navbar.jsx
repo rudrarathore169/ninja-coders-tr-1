@@ -36,7 +36,7 @@ const Navbar = () => {
           {/* Logo and Brand */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <ChefHat className="h-8 w-8 text-amber-600" />
+              <ChefHat size={40} className="text-amber-600" />
               <span className="text-xl font-bold text-gray-900">Scan & Dine</span>
             </Link>
           </div>

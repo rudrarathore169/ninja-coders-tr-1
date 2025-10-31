@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
+import { ChefHat } from 'lucide-react'
 import { loginStart, loginSuccess, loginFailure, clearError } from '../../store/slices/authSlice'
 import authService from '../../services/authService'
 
@@ -21,9 +22,9 @@ const Login = () => {
   useEffect(() => {
     if (isAuthenticated && user && !hasRedirected.current) {
       hasRedirected.current = true // Mark as redirected
-      
+
       const from = location.state?.from?.pathname
-      
+
       if (from) {
         navigate(from, { replace: true })
       } else {
@@ -85,23 +86,7 @@ const Login = () => {
         {/* Logo & Title */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="60" 
-              height="60" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              className="text-amber-800"
-            >
-              <path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/>
-              <path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/>
-              <path d="m2.1 21.8 6.4-6.3"/>
-              <path d="m19 5-7 7"/>
-            </svg>
+            <ChefHat size={60} className="text-amber-800" />
           </div>
           <h1 className="text-3xl font-bold text-amber-900">Welcome to Dine Lite</h1>
           <p className="text-amber-700 mt-2">Sign in to continue</p>
@@ -198,19 +183,19 @@ const Login = () => {
           <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
             <p className="text-xs font-semibold text-amber-900 mb-2">Quick Login (Demo):</p>
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={() => fillDemo('admin')}
                 className="flex-1 px-3 py-2 text-xs bg-purple-100 text-purple-800 rounded hover:bg-purple-200 transition-colors font-medium"
               >
                 Admin
               </button>
-              <button 
+              <button
                 onClick={() => fillDemo('staff')}
                 className="flex-1 px-3 py-2 text-xs bg-blue-100 text-blue-800 rounded hover:bg-blue-200 transition-colors font-medium"
               >
                 Staff
               </button>
-              <button 
+              <button
                 onClick={() => fillDemo('customer')}
                 className="flex-1 px-3 py-2 text-xs bg-green-100 text-green-800 rounded hover:bg-green-200 transition-colors font-medium"
               >

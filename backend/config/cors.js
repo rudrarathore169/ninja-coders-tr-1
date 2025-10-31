@@ -3,10 +3,10 @@ import config from './config.js';
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
+    console.log('🌐 Incoming Origin:', origin); // 👈 add this line for debugging
+
     if (!origin) return callback(null, true);
-    
-    // List of allowed origins
+
     const allowedOrigins = [
       config.FRONTEND_URL,
       'https://tr-1-project-ninja-coders.vercel.app',
@@ -16,17 +16,17 @@ const corsOptions = {
       'http://127.0.0.1:3000',
       'http://127.0.0.1:3001'
     ];
-    
-    // In development, allow any localhost origin
+
     if (config.NODE_ENV === 'development') {
       if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
         return callback(null, true);
       }
     }
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
+
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error(`❌ CORS Blocked Origin: ${origin}`); // 👈 helpful log
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -42,7 +42,7 @@ const corsOptions = {
     'X-Access-Token'
   ],
   exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
-  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+  optionsSuccessStatus: 200
 };
 
 export default corsOptions;

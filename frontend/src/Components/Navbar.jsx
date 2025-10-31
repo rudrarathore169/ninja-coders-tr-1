@@ -47,13 +47,15 @@ const Navbar = () => {
               <>
                 <Link
                   to="/customer/menu"
-                  className="text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative ${location.pathname === '/customer/menu' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                    }`}
                 >
                   Menu
                 </Link>
                 <Link
                   to="/customer/cart"
-                  className="relative text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative ${location.pathname === '/customer/cart' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                    }`}
                 >
                   <ShoppingCart className="h-5 w-5 inline mr-1" />
                   Cart
@@ -65,7 +67,8 @@ const Navbar = () => {
                 </Link>
                 <Link
                   to="/customer/order-status"
-                  className="text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative ${location.pathname === '/customer/order-status' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                    }`}
                 >
                   Order Status
                 </Link>
@@ -75,7 +78,8 @@ const Navbar = () => {
             {isStaffRoute && (
               <Link
                 to="/staff/dashboard"
-                className="text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative ${location.pathname === '/staff/dashboard' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                  }`}
               >
                 Dashboard
               </Link>
@@ -85,31 +89,36 @@ const Navbar = () => {
               <>
                 <Link
                   to="/admin/dashboard"
-                  className="text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative ${location.pathname === '/admin/dashboard' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                    }`}
                 >
                   Dashboard
                 </Link>
                 <Link
                   to="/admin/menu"
-                  className="text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative ${location.pathname === '/admin/menu' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                    }`}
                 >
                   Menu
                 </Link>
                 <Link
                   to="/admin/tables"
-                  className="text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative ${location.pathname === '/admin/tables' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                    }`}
                 >
                   Tables
                 </Link>
                 <Link
                   to="/admin/orders"
-                  className="text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative ${location.pathname === '/admin/orders' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                    }`}
                 >
                   Orders
                 </Link>
                 <Link
                   to="/admin/analytics"
-                  className="text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  className={`text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors relative ${location.pathname === '/admin/analytics' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                    }`}
                 >
                   Analytics
                 </Link>
@@ -174,21 +183,24 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/customer/menu"
-                    className="block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                    className={`block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium relative ${location.pathname === '/customer/menu' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                      }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Menu
                   </Link>
                   <Link
                     to="/customer/cart"
-                    className="block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                    className={`block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium relative ${location.pathname === '/customer/cart' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                      }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Cart ({cartItemCount})
                   </Link>
                   <Link
                     to="/customer/order-status"
-                    className="block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                    className={`block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium relative ${location.pathname === '/customer/order-status' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                      }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Order Status
@@ -199,46 +211,50 @@ const Navbar = () => {
               {isStaffRoute && (
                 <Link
                   to="/staff/dashboard"
-                  className="block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                  className={`block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium relative ${location.pathname === '/staff/dashboard' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Dashboard
                 </Link>
-              )}
-
-              {isAdminRoute && (
+              )}              {isAdminRoute && (
                 <>
                   <Link
                     to="/admin/dashboard"
-                    className="block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                    className={`block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium relative ${location.pathname === '/admin/dashboard' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                      }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <Link
                     to="/admin/menu"
-                    className="block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                    className={`block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium relative ${location.pathname === '/admin/menu' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                      }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Menu
                   </Link>
                   <Link
                     to="/admin/tables"
-                    className="block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                    className={`block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium relative ${location.pathname === '/admin/tables' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                      }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Tables
                   </Link>
                   <Link
                     to="/admin/orders"
-                    className="block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                    className={`block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium relative ${location.pathname === '/admin/orders' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                      }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Orders
                   </Link>
                   <Link
                     to="/admin/analytics"
-                    className="block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium"
+                    className={`block px-3 py-2 text-gray-700 hover:text-amber-600 text-base font-medium relative ${location.pathname === '/admin/analytics' ? 'text-amber-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-amber-600' : ''
+                      }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     Analytics
